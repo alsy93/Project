@@ -1,4 +1,4 @@
-function [r_ECEF,v_ECEF,a_ECEF]=eci2ecef(time,r_ECI,v_ECI,a_ECI)
+function [r_ECEF,v_ECEF]=eci2ecef(time,r_ECI,v_ECI)
 % La function è per definire la terna fissa con la terra, attraverso la
 % rotazione della terna centrata inerziale della terra (ECI)
 %
@@ -54,6 +54,9 @@ function [r_ECEF,v_ECEF,a_ECEF]=eci2ecef(time,r_ECI,v_ECI,a_ECI)
 
 reduction = 'IAU-2000/2006';
 
+%Define DCIP from Earth Rotation and Reference Systems Service (IERS)
+IERS=importdata('IERS.txt')
+
 %Define the director cosine matrix 
 
 dcm = dcmeci2ecef(reduction,time);
@@ -62,7 +65,7 @@ dcm = dcmeci2ecef(reduction,time);
 
 r_ECEF = dcm*[r_ECI(1); r_ECI(2); r_ECI(3)];
 v_ECEF = diff(dcm)*[v_ECI(1); v_ECI(2); v_ECI(3)];
-a_ECEF = diff(diff(dcm))*[a_ECI(1);a_ECI(2);a_ECI(3)];
+
 
 
 
