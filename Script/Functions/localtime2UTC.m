@@ -1,8 +1,8 @@
-function UTC_s = localtime2UTC(time,Timezone)
+function UTC_s = localtime2UTC(time,timezone)
 %This function provides to calculate UTC time starting from local mean time.
 % INPUTs:
 %
-% date:   [year, month, day, hour, minutes, seconds] Local mean time 
+% time:   [year, month, day, hour, minutes, seconds] Local mean time 
 %           
 %            year: enter a double value that is a whole number greater than
 %                    1, such as 2013 
@@ -16,10 +16,19 @@ function UTC_s = localtime2UTC(time,Timezone)
 %                     0, within the range 1 to 60.
 %            seconds:  enter a double value that is a whole number greater 
 %                      than 0, within the range 1 to 60.
-% Timezone: 1x1       Is the timezone of the place, for example for Moscow is
-%                     +3 (UTC/GMT +3 hours).The sign is important!
+% Timezone: 1x1      An ISO 8601 character  of the form +HH,mm or -HH,mm;
+%                    for example, +3.00, to specify a time zone that is a 
+%                    fixed offset from UTC (like Moscow).
 % OUTPUTs:
 %
 %UTC_s      1x1             [seconds]  An array providing the UTC in seconds
-UTC = datetime(time,'ConvertFrom',Timezone);
-UTC_s = datetime(UTC,'ConvertFrom','epochtime','Epoch','2010-3-21-00-00-00');             
+%                            elapsed since 00:00:00 1-Jan-1970 UTC as the
+%                            Posix definition
+
+local_time = datetime(time);%,'Format','yyyy MM dd HH mm ss');
+UTC = local_time - sign(timezone)*hours(timezone);
+UTC_s = posixtime(UTC);
+end
+
+
+

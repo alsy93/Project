@@ -1,23 +1,12 @@
-function [r_ECEF,v_ECEF]=eci2ecef(time,r_ECI,v_ECI)
-% La function è per definire la terna fissa con la terra, attraverso la
+function [r_ECEF,v_ECEF]=eci2ecef(r_ECI,v_ECI,UTC_time)
+% La function è per definire la Earth centred fixed frame (ECEF), attraverso la
 % rotazione della terna centrata inerziale della terra (ECI)
 %
 % INPUTs:
-% 
-% time:   [year, month, day, hour, minutes, seconds] Universal Coordinated Time (UTC) 
-%           
-%            year: enter a double value that is a whole number greater than
-%                    1, such as 2013 
-%            month: enter a double value that is a whole number greater than
-%                    0, within the range 1 to 12.
-%            day:  enter a double value that is a whole number greater than
-%                    0, within the range 1 to 31.
-%            hour: enter a double value that is a whole number greater than
-%                    0, within the range 1 to 24.
-%            minutes: enter a double value that is a whole number greater than 
-%                     0, within the range 1 to 60.
-%            seconds:  enter a double value that is a whole number greater 
-%                      than 0, within the range 1 to 60.
+%
+%UTC_time                   [1 x N]                        A vector providing
+%                                                      the UTC in seconds
+%                                                      
 %r_ECI                  [3 x N]                         Position Vector
 %                                                       [km]       
 %                                                       in ECI coordinate
@@ -27,13 +16,7 @@ function [r_ECEF,v_ECEF]=eci2ecef(time,r_ECI,v_ECI)
 %                                                       [km/s]   in
 %                                                       ECI coordinate
 %                                                       frame of reference
-%
-%a_ECI                  [3 x N]                         Acceleration Vector
-%                                                       [km/s2]   
-%                                                       in ECI coordinate
-%                                                       frame of reference
-%
-% OUTPUTs
+% OUTPUTs:
 %
 %r_ECEF                 [3 x N]                         Position Vector in
 %                                                       ECEF coordinate
@@ -42,34 +25,47 @@ function [r_ECEF,v_ECEF]=eci2ecef(time,r_ECI,v_ECI)
 %v_ECEF                 [3 x N]                         Velocity vector in
 %                                                       ECEF coordinate
 %                                                       frame of reference
-%
-%a_ECEF                 [3 x N]                         Acceleration Vector
-%                                                       in ECEF coordinate
-%                                                       frame of reference
-%
-
-%Define the reduction actually most used in astrodynamic: it refers to
-%coordinates for January 12, 2000 at 4 hours, 52 minutes, 12.4 seconds and 
-%January 12, 2000 at 4 hours, 52 minutes, and 13 seconds.
-
-reduction = 'IAU-2000/2006';
-
-%Define DCIP from Earth Rotation and Reference Systems Service (IERS)
-IERS=importdata('IERS.txt')
-
-%Define the director cosine matrix 
-
-dcm = dcmeci2ecef(reduction,time);
-
-%Trasformation in ECEF reference frame
-
-r_ECEF = dcm*[r_ECI(1); r_ECI(2); r_ECI(3)];
-v_ECEF = diff(dcm)*[v_ECI(1); v_ECI(2); v_ECI(3)];
-
-
-
-
+%Check inputs
+if nargin ~= 3
+    error('Incorrect number of inputs.  See help eci2ecef.')
+end
+if size(r_ECI,1) ~= 3
+   error('Check the help of this function');
+end
+if size(v_ECI,1) ~= 3
+      error('Check the help of this function')
 end
 
-    
-    
+%Checking to see if length of ECI matrix is the same as the length of the time vector
+N = size(r_ECI,2);
+if N ~= length(UTC_time)
+    error('Size of ECI vector not equal to size of time vector.  Check inputs.')
+end
+
+r_ECEF = zeros(3,N);
+v_ECEF = zeros(3,N);
+
+%Definition of Greenwich mean time at t0 (fixed at 21 March 2010 at 00:00:00)
+%and of Greenwich hour angle
+we = (2*pi/365.26)/(24*3600); %angular velocity of the Earth
+UTC_t0 =  posixtime(datetime([2010 03 21 00 00 00]))*ones(1,N);
+GHA = zeros(1,N);
+
+%Definition of Greenwich hour angle (Greenwich sideral angle at t0)
+GST = GHA + we*(UTC_time-UTC_t0);
+
+%Creation of direction cosine matrix for ECEF
+dcm_ECEF2ECI = [cos(GST) -sin(GST) 0;sin(GST) cos(GST) 0; 0 0 1];
+dcm_ECI2ECEF = dcm_ECEF2ECI';
+
+%Creation the derivated matrix to find velocity 
+dcm_dot_ECEF2ECI = [-sin(GST).*we, - cos(GST).*we, 0; cos(GST).*we, -sin(GST).*we, 0;0, 0, 1];
+dcm_dot_ECI2ECEF = dcm_dot_ECEF2ECI';
+
+for j = 1:N  %Iterating thru the number of positions provided by user
+             % Rotating the ECI vector into the ECEF frame via the GST angle about the Z-axis
+    r_ECEF(:,j) = dcm_ECI2ECEF(GST(j))*r_ECI(:,j);
+    v_ECEF(:,j) = dcm_dot_ECI2ECEF(GST(j))*r_ECI(:,j) + dcm_ECI2ECEF(GST(j))*v_ECI(:,j);
+end
+
+end
