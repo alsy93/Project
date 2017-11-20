@@ -2,9 +2,9 @@ function [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_time)
 % La function è per definire la Earth centred fixed frame (ECEF), attraverso la
 % rotazione della terna centrata inerziale della terra (ECI)
 %
-% INPUTs:
+%INPUTs:
 %
-%UTC_time                   [1 x N]                        A vector providing
+%UTC_time               [1 x N]                        A vector providing
 %                                                      the UTC in seconds
 %
 %r_ECEF                 [3 x N]                         Position Vector in
