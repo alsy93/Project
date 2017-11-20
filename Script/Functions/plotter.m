@@ -1,4 +1,5 @@
 function plothandler = plotter(Name,varargin)
+
 %Questa function serve per disegnare la terra o il centro di pressione o 
 %baricentro della Soyuz.
 

@@ -1,4 +1,5 @@
 function UTC_s = localtime2UTC(time,timezone)
+
 %This function provides to calculate UTC time starting from local mean time.
 % INPUTs:
 %
