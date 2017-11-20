@@ -30,20 +30,18 @@ function [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_time)
 if nargin ~= 3
     error('Incorrect number of inputs.  See help eci2ecef.')
 end
-if size(r_ECI,1) ~= 3
+if size(r_ECEF,1) ~= 3
    error('Check the help of this function');
 end
-if size(v_ECI,1) ~= 3
+if size(v_ECEF,1) ~= 3
       error('Check the help of this function')
 end
 
-%Convert date in seconds 
 
-
-%Checking to see if length of ECI matrix is the same as the length of the time vector
-N = size(r_ECI,2);
+%Checking to see if length of ECEF matrix is the same as the length of the time vector
+N = size(r_ECEF,2);
 if N ~= length(UTC_time)
-    error('Size of ECI vector not equal to size of time vector.  Check inputs.')
+    error('Size of ECEF vector not equal to size of time vector.  Check inputs.')
 end
 
 %Definition of Greenwich mean time at t0 (fixed at 21 March 2010 at 00:00:00)
@@ -57,15 +55,17 @@ GST = GHA + we*(UTC_time-UTC_t0);
 
 %Creation of direction cosine matrix for ECEF
 dcm_ECEF2ECI = [cos(GST) -sin(GST) 0;sin(GST) cos(GST) 0; 0 0 1];
-dcm_ECI2ECEF = dcm_ECEF2ECI';
 
 %Creation the derivated matrix to find velocity 
 dcm_dot_ECEF2ECI = [-sin(GST).*we, - cos(GST).*we, 0; cos(GST).*we, -sin(GST).*we, 0;0, 0, 1];
-dcm_dot_ECI2ECEF = dcm_dot_ECEF2ECI';
+
+%Creation of empty matrixes
+r_ECI = zeros(3,N);
+v_ECI = zeros(3,N);
 
 for j = 1:N  %Iterating thru the number of positions provided by user
              % Rotating the ECI vector into the ECEF frame via the GST angle about the Z-axis
-    r_ECEF(:,j) = dcm_ECI2ECEF(GST(j))*r_ECI(:,j);
-    v_ECEF(:,j) = dcm_dot_ECI2ECEF(GST(j))*r_ECI(:,j) + dcm_ECI2ECEF(GST(j))*v_ECI(:,j);
-    end
+    r_ECI(:,j) = dcm_ECEF2ECI(GST(j))*r_ECEF(:,j);
+    v_ECI(:,j) = dcm_dot_ECEF2ECI(GST(j))*r_ECEF(:,j) + dcm_ECEF2ECI(GST(j))*v_ECEF(:,j);
+end
 end

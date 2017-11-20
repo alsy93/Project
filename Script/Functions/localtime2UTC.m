@@ -25,7 +25,7 @@ function UTC_s = localtime2UTC(time,timezone)
 %                            elapsed since 00:00:00 1-Jan-1970 UTC as the
 %                            Posix definition
 
-local_time = datetime(time);%,'Format','yyyy MM dd HH mm ss');
+local_time = datetime(time);
 UTC = local_time - sign(timezone)*hours(timezone);
 UTC_s = posixtime(UTC);
 end
