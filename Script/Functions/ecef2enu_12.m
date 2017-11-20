@@ -43,5 +43,6 @@ v_ENU = zeros(3,N);
 
 for j = 1:N 
     r_ENU(:,j) = ecef2enu(r_ECEF(1,j),r_ECEF(2,j),r_ECEF(3,j),lat(j),long(j),h(j),referenceSphere);
+    v_ENU(:,j) = ecef2enu(r_ECEF(1,j),r_ECEF(2,j),r_ECEF(3,j),lat(j),long(j),h(j),referenceSphere);
 
 end

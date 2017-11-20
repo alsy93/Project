@@ -8,7 +8,15 @@ function [r_ENU,v_ENU]=ecef2enu_12(r_ECEF,v_ECEF,lat,long,h)
 %v_ECEF                 [3 x N]                         Velocity vector in
 %                                                       ECEF coordinate
 %                                                       frame of reference
-%lat                    [1]
+%
+%lat                    [1 x N]                         Latitude expressed 
+%                                                       in degrees starting
+%                                                       from Equator [-90,90]
+%long                   [1 x N]                         Latitude expressed 
+%                                                       in degrees starting
+%                                                       from Equator [0,360]
+
+
 
 %to be completed
 
@@ -34,6 +42,7 @@ r_ENU = zeros(3,N);
 v_ENU = zeros(3,N);
 
 for j = 1:N 
-    r_ENU(:,j) = ecef2enu(r_ECEF(1,j),r_ECEF(2,j),r_ECEF(3,j),lat(j),lon(j),h(j),referenceSphere);
+    r_ENU(:,j) = ecef2enu(r_ECEF(1,j),r_ECEF(2,j),r_ECEF(3,j),lat(j),long(j),h(j),referenceSphere);
+    v_ENU(:,j) = ecef2enu(r_ECEF(1,j),r_ECEF(2,j),r_ECEF(3,j),lat(j),long(j),h(j),referenceSphere);
 
 end
