@@ -5,16 +5,17 @@ function [q_conv, T_w]=convective_heat_flux(z,v_AERO,z_i,z_f)
 %
 % INPUT:
 % z : altitude
-% v : velocità nella terna aerodinamica [3,N]
+% v : velocità nella terna aerodinamica [3 x N]
 % z_i : Initial altitude [m]
 % z_f : Final altitude [m]
 %
 % OTPUT:
-% q_conv : flusso convettivo nel punto di ristagno
-% T_w : wall temperature at the stagnation point
+% q_conv : flusso convettivo nel punto di ristagno [1 x N]
+% T_w : wall temperature at the stagnation point   [1 x N]
 %
 % CALLED FUNCTIONS:
 % atmosisa
+%atmosnrlmsise00
 %
 % ----------------------------------------
 
@@ -24,21 +25,23 @@ K=        % Empirical scaling factor for convective heat flux (see "Simulation o
 h=
 
 % Vectors initialization
-n=length(v_AERO);
-q_conv=zeros(n,1);
-T_w=zeros(n,1);
-z_vect=linspace(z_i,z_f,n);
+N=length(v_AERO);
+q_conv=zeros(1,N);
+T_w=zeros(1,N);
+T_air=zeros(1,N);
+rho=zeros(1,N);
+%z_vect=linspace(z_i,z_f,N);
 
 % Classic equation of the convective heat flux
-for i=1:n
+for i=1:N
     %Proprieties of the air, given the altitude
-    [T_air(i), ~, ~, rho(i)] = atmosisa(z_vect(i))   %T_air[K] -  rho[g/m^3]
-    
+    [T_air(1,i), ~, ~,rho(1,i)] = atmosisa(norm(z(:,i)))   %T_air[K] -  rho[g/m^3]
+    [T, rho_] = atmosnrlmsise00(h,lat,lon,year,doy,sec,varargin)
     % Heat flux at the stagnation point at that altitude
-    q_conv(i)=K*(rho(i)/R_n)^(1/2)*v(i);
+    q_conv(1,i)=K*(rho(1,i)/R_n)^(1/2)*norm(v_AERO(:,i));
     
     % Wall temperature at the stagnation point at that altitude
-    T_w(i)=T_air(i)+q_conv(i)/h;
+    T_w(1,i)=T_air(1,i)+q_conv(1,i)/h;
 end
 
 %%% PROBLEMI
@@ -49,7 +52,8 @@ end
 %     troposfera e la nostra analisi comincia ben più in alto quindi devo
 %     trovare uno (o più) altri modelli da cui recuperare temperatura e
 %     densità dell'aria
-    
+% bisogna trattare bene quota perchè basta z come vettore senza valore
+% iniziale e finale che sono già presenti nel medesimo
     
     
     
