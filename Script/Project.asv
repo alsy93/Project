@@ -16,14 +16,13 @@ c_d = 1.341;   %Drag coefficient
 h_0 = 99.7;    %Altitude at starting point [km]
 v_0 = 7.619;   %Velocity magnitude
 gamma_i = -1.5;%Initial flight path angle [°]
-lat_0 = 34.35; %Initial latitude [°]
-long_0 = 45.56; %Initial longitude [°]
-
+lat_0 = 34.35;
+long_0 = 45.56;
 %Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
 % and it is referred to Moscow time
 
-t_0 = [2017 06 02 16 47 25];
-t_f = [2017 06 02 16 55 39];%Time at which the parachute will be opened [s]
+t_0 =[2017 06 2 16 47 25];
+t_f = 480;     %Time at which the parachute will be opened [s]
 
 % Data of the termical part
 
