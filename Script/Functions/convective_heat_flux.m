@@ -54,8 +54,9 @@ end
 %     densità dell'aria
 % bisogna trattare bene quota perchè basta z come vettore senza valore
 % iniziale e finale che sono già presenti nel medesimo
-    
-    
+%     densità dell'aria   
+% atmosnrlmsise00 
+[T, ALT, ZW] = atmoscira(LAT, CTYPE, COORD )
     
     
     
