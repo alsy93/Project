@@ -1,4 +1,5 @@
 clear all; close all
+%dbstop if naninf
 %% SOYUZ DESCENT MODULE RE-ENTRY (FIRST PHASE)
 % Mission MS-03 on June 2, 2017
 
@@ -61,27 +62,23 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-N = 500;
+N = 10;
 time = linspace(0,delta_t,N); %almost every second
+%time = linspace(UTC_t_0,UTC_t_f,N);
 
 %Build system of ODE's
-var_0 = [v_0 lat_0rad gamma_0rad h_0];
-% syms('v','gamma','h','lat')
-% dvdt = -((rho_s*g)/(2*beta))*v^2 + g*sin(gamma);
-% dgammadt = -((rho_s*g)/(2*beta))*(c_l/c_d)*v + (g*cos(gamma)/v)  - dlatdt;
-% dhdt = -v*sin(gamma);
-% dlatdt= v*cos(gamma)/(Re+h);
+var_0 = [v_0  v_0*gamma_0rad h_0 lat_0rad];
+% syms v, gamma,h,lat
+v=var(1);
+gamma=var(2);
+h=var(3);
 
-dvdt = -((rho_s*g)/(2*beta))*var(1)^2 + g*sin(var(2));
-dlatdt = var(1)*cos(var(2))/(Re+var(3));
-dgammadt = -((rho_s*g)/(2*beta))*(c_l/c_d)*var(1) + (g*cos(var(2))/var(1)) - dlatdt;
-dhdt = -var(1)*sin(var(2));
+dvdt = -((rho_s*g)/(2*beta))*v^2 + g*sin(gamma);
+dgammadt_perv = -((rho_s*g)/(2*beta))*eff*v^2 + (g*cos(gamma)/v)  - v*cos(gamma)/(Re+h);
+dhdt = -v*sin(gamma);
+dlatdt= v*cos(gamma)/(Re+h);
 
-odes=@(t,var)[dvdt; dlatdt; dgammadt; dhdt];
-% dvdt = -((rho_s*g)/(2*beta))*var(1)^2 + g*sin(var(2));
-% dgammadt = -((rho_s*g)/(2*beta))*(c_l/c_d)*var(1)^2 + (g*cos(var(2))) -var(1)*(var(1)*cos(var(2))/(Re+var(3)));
-% dhdt = -var(1)*sin(var(2));
-% dlatdt = var(1)*cos(var(2))/(Re+var(3));
-% odes=@(time,var)[dvdt; var(1)*dgammadt; dhdt; dlatdt];
-[t,varout] = ode45(odes,time,var_0,odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot));
+Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt; dlatdt];
+options = odeset;
+[t,varout] = ode15s(Mechanicalsystm,time,var_0,options);
 

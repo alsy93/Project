@@ -1,5 +1,5 @@
 clear all; close all
-dbstop if naninf
+%dbstop if naninf
 %% SOYUZ DESCENT MODULE RE-ENTRY (FIRST PHASE)
 % Mission MS-03 on June 2, 2017
 
@@ -62,23 +62,22 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-N = 10;
+N = 5000;
 time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
 
 %Build system of ODE's
-var_0 = [v_0  gamma_0rad h_0 lat_0rad];
+var_0 = [v_0 gamma_0 h_0];
 % syms v, gamma,h,lat
 v=var(1);
 gamma=var(2);
 h=var(3);
 
-dvdt = -((rho_s*g)/(2*beta))*v^2 + g*sin(gamma);
-dgammadt = -((rho_s*g)/(2*beta))*eff*v + (g*cos(gamma)/v)  - v*cos(gamma)/(Re+h);
-dhdt = -v*sin(gamma);
-dlatdt= v*cos(gamma)/(Re+h);
+dvdt = -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma);
+dgammadt = -((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h);
+dhdt = (-v.*sind(gamma));
 
-Mechanicalsystm=@(t,var)[dvdt; dlatdt; dgammadt_plus_dlatdt; dhdt];
-options = odeset;
+Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt];
+options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
 [t,varout] = ode15s(Mechanicalsystm,time,var_0,options);
 
