@@ -21,8 +21,9 @@ c_d = 1.341;   %Drag coefficient
 %Simulation data
 Re = 6738e3;
 g = 9.81;   %Gravity acceleration [m/s^2]      
-gamma_0 = -1.5;%Initial flight path angle [°]
+gamma_0 = 1.5;%Initial flight path angle [°]
 gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
+gamma_f = 1.1;
 h_0 = 99.7e3;    %Altitude at starting point [m]
 h_f = 10.8e3;    %Altitude in which modelling finish and parachute will opened [m]
 v_0 = 7.619e3;   %Initial velocity magnitude [m/s]
@@ -66,18 +67,45 @@ N = 5000;
 time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
 
-%Build system of ODE's
-var_0 = [v_0 gamma_0 h_0];
-% syms v, gamma,h,lat
+% %Build system of ODE's
+
+var_0 = [v_0 gamma_0 h_0 lat_0];
+%syms 'v' 'gamma' 'h' 'lat'
 v=var(1);
 gamma=var(2);
 h=var(3);
 
-dvdt = -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma);
-dgammadt = -((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h);
+dvdt =( -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma));
+dgammadt = (-((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h));
 dhdt = (-v.*sind(gamma));
+dlatdt = v.*cosd(gamma)./(Re+h);
 
-Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt];
+Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt; dlatdt];
 options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-[t,varout] = ode15s(Mechanicalsystm,time,var_0,options);
+[t,varout] = ode45(Mechanicalsystm,time,var_0,options);
+% t_0 = 0;
+% var_0 = [v_0 gamma_0 h_0];
+% varp_0 = [(v_f-v_0)/delta_t (gamma_f-gamma_0)/delta_t (h_f-h_0)/delta_t];
+% 
+% v = var(1);
+% gamma = var(2);
+% h = var(3);
+% 
+% %odei = zeros(3,1);
+% 
+% % odei(1) = varp(1) -(((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma));
+% % odei(2) = varp(2) -(((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h));
+% % odei(3) = varp(3) - (-v.*sind(gamma));
+% odei(1) = ((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma);
+% odei(2) =((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h);
+% odei(3) = -v.*sind(gamma);
+% Mechanicalsystm = @(t,var) odei;
+
+
+% [var_1,varp_1] = decic(Mechanicalsystm,t_0,var_0,1,varp_0,[]);
+% options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
+% [t,varout] = ode15i(Mechanicalsystm,time,var_1,varp_1,options);
+% 
+% 
+% 
 
