@@ -1,8 +1,4 @@
 function dydt = Mechanicalsystm(t,y,par)
-% m = 2.9e3;       %Mass [kg]
-% Vol = 9;       %Volume [m^3]
-% rho_s = m/Vol; %Density [kg/m^3]
-% g = 9.81;   %Gravity acceleration [m/s^2]
 
 v = y(1);
 gamma = y(2);

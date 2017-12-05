@@ -9,25 +9,25 @@ addpath(genpath('Functions'))
 % Data of the mechanical part
 %Body data
 m = 2.9e3;       %Mass [kg]
-l = 2.1;       %Length [m]
-d = 2.2;       %Diameter [m]
-Vol = 9;       %Volume [m^3]
-rho_s = m/Vol; %Density [kg/m^3]
-A_ref = 3.8;    %Reference area [m^2]
+l = 2.1e-3;       %Length [km]
+d = 2.2e-3;       %Diameter [km]
+Vol = 9e-9;       %Volume [km^3]
+rho_s = m/Vol; %Density [kg/km^3]
+A_ref = 3.8e-6;    %Reference area [km^2]
 %Aerodynamic data
 eff = 0.26;    %Aerodynamic efficiency
 c_l = 0.349;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
 %Simulation data
-Re = 6738e3;
-g = 9.81;   %Gravity acceleration [m/s^2]      
+Re = 6738;     %Radius of the Earth [km]
+g = 9.81e-3;   %Gravity acceleration [m/s^2]      
 gamma_0 = -1.5;%Initial flight path angle [°]
 gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
 
-h_0 = 99.7e3;    %Altitude at starting point [m]
-h_f = 10.8e3;    %Altitude in which modelling finish and parachute will opened [m]
-v_0 = 7.619e3;   %Initial velocity magnitude [m/s]
-v_f = 0.216e3;   %Final velocity magnitude [m/s]
+h_0 = 99.7;    %Altitude at starting point [m]
+h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [m]
+v_0 = 7.619;   %Initial velocity magnitude [m/s]
+v_f = 0.216;   %Final velocity magnitude [m/s]
 beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [kPa*m/s^2]
 %---------------------------------------------------------------------------------
 lat_0 = 34.35; %Initial latitude [°]
@@ -47,7 +47,7 @@ timezone = +3.00;              %Moscow timezone
 
 % Data of the termical part
 
-Rn = 2.235; %Nose radius [m]
+Rn = 2.235e-3; %Nose radius [m]
 e = 0.85; %Emissivity coefficient
 cd = 1.4; %Conductive coefficient [W/(mK)]
 
@@ -77,49 +77,26 @@ par.g = g;
 par.eff = eff;
 par.Re = Re;
 
+% Try different options
+
+%options = odeset;
+%options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
 %options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-[t,y] = ode113(@Mechanicalsystm,time,y0,odeset,par);
+%options = odeset('RelTol',1e-8,'AbsTol',1e-9,'OutputFcn',@odeplot,'Stats','on');
+%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+                 %@odephas3,'MaxStep',1e-2*abs(delta_t));
+% options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+%                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
+%                  'Refine',25);
 
-%syms 'v' 'gamma' 'h' 'lat'
-% v=var(1);
-% gamma=var(2);
-% h=var(3);
-% 
-% dvdt =( -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma));
-% dgammadt = (-((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h))*10^(7);
-% dhdt = (-v.*sind(gamma));
-% dlatdt = v.*cosd(gamma)./(Re+h)*10^(4);
-% 
-% Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt; dlatdt];
-% options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-% [t,varout] = ode45(Mechanicalsystm,time,var_0,options);
+options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
+                 'Events',@);
+
+[t,y] = ode15s(@Mechanicalsystm,time,y0,options,par);
 
 
-% t_0 = 0;
-% var_0 = [v_0 gamma_0 h_0];
-% varp_0 = [(v_f-v_0)/delta_t (gamma_f-gamma_0)/delta_t (h_f-h_0)/delta_t];
-% 
-% v = var(1);
-% gamma = var(2);
-% h = var(3);
-% 
-% %odei = zeros(3,1);
-% 
-% % odei(1) = varp(1) -(((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma));
-% % odei(2) = varp(2) -(((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h));
-% % odei(3) = varp(3) - (-v.*sind(gamma));
-% odei(1) = ((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma);
-% odei(2) =((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h);
-% odei(3) = -v.*sind(gamma);
-% Mechanicalsystm = @(t,var) odei;
 
-
-% [var_1,varp_1] = decic(Mechanicalsystm,t_0,var_0,1,varp_0,[]);
-% options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-% [t,varout] = ode15i(Mechanicalsystm,time,var_1,varp_1,options);
-% 
-% 
-% 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
 %equatorial plane, while the Z axis passes trought the North Pole.
 ECI = eye(3);

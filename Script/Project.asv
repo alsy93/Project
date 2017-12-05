@@ -9,25 +9,25 @@ addpath(genpath('Functions'))
 % Data of the mechanical part
 %Body data
 m = 2.9e3;       %Mass [kg]
-l = 2.1;       %Length [m]
-d = 2.2;       %Diameter [m]
-Vol = 9;       %Volume [m^3]
-rho_s = m/Vol; %Density [kg/m^3]
-A_ref = 3.8;    %Reference area [m^2]
+l = 2.1e-3;       %Length [km]
+d = 2.2e-3;       %Diameter [km]
+Vol = 9e-9;       %Volume [km^3]
+rho_s = m/Vol; %Density [kg/km^3]
+A_ref = 3.8e-6;    %Reference area [km^2]
 %Aerodynamic data
 eff = 0.26;    %Aerodynamic efficiency
 c_l = 0.349;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
 %Simulation data
-Re = 6738e3;
-g = 9.81;   %Gravity acceleration [m/s^2]      
-gamma_0 = 1.5;%Initial flight path angle [°]
+Re = 6738;     %Radius of the Earth [km]
+g = 9.81e-3;   %Gravity acceleration [m/s^2]      
+gamma_0 = -1.5;%Initial flight path angle [°]
 gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
-gamma_f = 1.1;
-h_0 = 99.7e3;    %Altitude at starting point [m]
-h_f = 10.8e3;    %Altitude in which modelling finish and parachute will opened [m]
-v_0 = 7.619e3;   %Initial velocity magnitude [m/s]
-v_f = 0.216e3;   %Final velocity magnitude [m/s]
+
+h_0 = 99.7;    %Altitude at starting point [m]
+h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [m]
+v_0 = 7.619;   %Initial velocity magnitude [m/s]
+v_f = 0.216;   %Final velocity magnitude [m/s]
 beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [kPa*m/s^2]
 %---------------------------------------------------------------------------------
 lat_0 = 34.35; %Initial latitude [°]
@@ -47,7 +47,7 @@ timezone = +3.00;              %Moscow timezone
 
 % Data of the termical part
 
-Rn = 2.235; %Nose radius [m]
+Rn = 2.235e-3; %Nose radius [m]
 e = 0.85; %Emissivity coefficient
 cd = 1.4; %Conductive coefficient [W/(mK)]
 
@@ -69,15 +69,26 @@ y0.v0 = v_0;
 y0.gamma0 = gamma_0;
 y0.h0 = h_0;
 y0.lat0 = lat_0;
-y0 = []
+y0 = [y0.v0 y0.gamma0 y0.h0 y0.lat0];
+
 par.rho_s = rho_s;
 par.beta = beta;
 par.g = g;
 par.eff = eff;
 par.Re = Re;
 
-options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-[t,y] = ode45(@Mechanicalsystm,time,y0,options,par);
+% Try different options
+
+%options = odeset;
+%options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
+%options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
+%options = odeset('RelTol',1e-8,'AbsTol',1e-9,'OutputFcn',@odeplot,'Stats','on');
+%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+                 %@odephas3);
+options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on');
+
+[t,y] = ode15(@Mechanicalsystm,time,y0,options,par);
 
 %syms 'v' 'gamma' 'h' 'lat'
 % v=var(1);
