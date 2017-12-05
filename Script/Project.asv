@@ -21,9 +21,9 @@ c_d = 1.341;   %Drag coefficient
 %Simulation data
 Re = 6738e3;
 g = 9.81;   %Gravity acceleration [m/s^2]      
-gamma_0 = -1.5;%Initial flight path angle [°]
+gamma_0 = 1.5;%Initial flight path angle [°]
 gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
-gamma_f = -1.1;
+gamma_f = 1.1;
 h_0 = 99.7e3;    %Altitude at starting point [m]
 h_f = 10.8e3;    %Altitude in which modelling finish and parachute will opened [m]
 v_0 = 7.619e3;   %Initial velocity magnitude [m/s]
@@ -51,11 +51,7 @@ Rn = 2.235; %Nose radius [m]
 e = 0.85; %Emissivity coefficient
 cd = 1.4; %Conductive coefficient [W/(mK)]
 
-%% Start modeling and simulation
-
-%ECI frame has the Gamma point direction and X-Y plane lies on the
-%equatorial plane, while the Z axis passes trought the North Pole.
-ECI = eye(3);
+%======== Start modeling and simulation ================================
 
 %Create a time discretization
 UTC_ref = posixtime(datetime(t_ref));
@@ -69,20 +65,35 @@ time = linspace(0,delta_t,N); %almost every second
 
 % %Build system of ODE's
 
-var_0 = [v_0*10^(-7) gamma_0 h_0 lat_0];
-%syms 'v' 'gamma' 'h' 'lat'
-v=var(1);
-gamma=var(2);
-h=var(3);
+y0.v0 = v_0;
+y0.gamma0 = gamma_0;
+y0.h0 = h_0;
+y0.lat0 = lat_0;
+y0 = []
+par.rho_s = rho_s;
+par.beta = beta;
+par.g = g;
+par.eff = eff;
+par.Re = Re;
 
-dvdt =( -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma)))*10^(-7);
-dgammadt = -((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h);
-dhdt = (-v.*sind(gamma));
-dlatdt = v.*cosd(gamma)./(Re+h);
-
-Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt; dlatdt];
 options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-[t,varout] = ode45(Mechanicalsystm,time,var_0,options);
+[t,y] = ode45(@Mechanicalsystm,time,y0,options,par);
+
+%syms 'v' 'gamma' 'h' 'lat'
+% v=var(1);
+% gamma=var(2);
+% h=var(3);
+% 
+% dvdt =( -((rho_s*g)/(2*beta))*v.^2 + g.*sind(gamma));
+% dgammadt = (-((rho_s*g)/(2*beta))*eff.*v + (g.*cosd(gamma)./v)  - v.*cosd(gamma)./(Re+h))*10^(7);
+% dhdt = (-v.*sind(gamma));
+% dlatdt = v.*cosd(gamma)./(Re+h)*10^(4);
+% 
+% Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt; dlatdt];
+% options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
+% [t,varout] = ode45(Mechanicalsystm,time,var_0,options);
+
+
 % t_0 = 0;
 % var_0 = [v_0 gamma_0 h_0];
 % varp_0 = [(v_f-v_0)/delta_t (gamma_f-gamma_0)/delta_t (h_f-h_0)/delta_t];
@@ -108,4 +119,6 @@ options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
 % 
 % 
 % 
-
+%ECI frame has the Gamma point direction and X-Y plane lies on the
+%equatorial plane, while the Z axis passes trought the North Pole.
+ECI = eye(3);
