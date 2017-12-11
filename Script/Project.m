@@ -63,6 +63,7 @@ N = 5000;
 time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
 
+<<<<<<< Updated upstream
 % %Build system of ODE's
 
 y0.v0 = v_0;
@@ -76,9 +77,19 @@ par.beta = beta;
 par.g = g;
 par.eff = eff;
 par.Re = Re;
+=======
+%Build system of ODE's
+var_0 = [v_0 gamma_0 h_0];
+
+% syms v, gamma,h,lat
+v=var(1);
+gamma=var(2);
+h=var(3);
+>>>>>>> Stashed changes
 
 % Try different options
 
+<<<<<<< Updated upstream
 %options = odeset;
 %options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
 %options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
@@ -88,6 +99,11 @@ par.Re = Re;
 %options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
 %                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
 %                  'Refine',25);
+=======
+Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt];
+options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
+[t,varout] = ode45(Mechanicalsystm,time,var_0,options);
+>>>>>>> Stashed changes
 
 options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20);
