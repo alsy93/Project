@@ -91,8 +91,22 @@ par.Re = Re;
 
 options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20);
+options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,'MStateDependence','strong','MvPattern','S');
 
-[t,y] = ode15s(@Mechanicalsystm,time,y0,options,par);
+[t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
+[t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
+[t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
+%sol4= ode15i(@Mechanicalsystm,time,y0,options,par);
+
+
+%Number of function evaluations
+
+% fprintf('No. points = %d, \t fcount = %d \n', size(sol1.y,2), sol1.stats.nfevals) ;
+% fprintf('No. points = %d, \t fcount = %d \n', size(sol2.y,2), sol2.stats.nfevals) ;
+% fprintf('No. points = %d, \t fcount = %d \n', size(sol3.y,2), sol3.stats.nfevals) ;
+%fprintf('No. points = %d, \t fcount = %d \n', size(sol4.y,2), sol4.stats.nfevals) ;
+
 
 
 
