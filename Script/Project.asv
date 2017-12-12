@@ -1,4 +1,4 @@
-clear all; close all
+clc;clear all; close all; hold on
 %dbstop if naninf
 %% SOYUZ DESCENT MODULE RE-ENTRY (FIRST PHASE)
 % Mission MS-03 on June 2, 2017
@@ -59,10 +59,9 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-N = 50;
+N = 5000;
 time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
-
 
 % %Build system of ODE's
 
@@ -77,42 +76,33 @@ par.beta = beta;
 par.g = g;
 par.eff = eff;
 par.Re = Re;
-=======
-%Build system of ODE's
-var_0 = [v_0 gamma_0 h_0];
-
-% syms v, gamma,h,lat
-v=var(1);
-gamma=var(2);
-h=var(3);
->>>>>>> Stashed changes
 
 % Try different options
 
-<<<<<<< Updated upstream
 %options = odeset;
 %options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
 %options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
 %options = odeset('RelTol',1e-8,'AbsTol',1e-9,'OutputFcn',@odeplot,'Stats','on');
-%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 %@odephas3,'MaxStep',1e-2*abs(delta_t));
+% options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
+%                @odephas3,'MaxStep',1);
 %options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
 %                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
 %                  'Refine',25);
-=======
-Mechanicalsystm=@(t,var)[dvdt;  dgammadt; dhdt];
-options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-[t,varout] = ode45(Mechanicalsystm,time,var_0,options);
->>>>>>> Stashed changes
 
 options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-30);
+                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-12);
 options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-30,'MStateDependence','strong','MvPattern','S');
-
+                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-05,'MStateDependence','strong','MvPattern','S');
+figure(1)
 [t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
+figure(2)
 [t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
+figure(3)
 [t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
+
+% [t4,y4]= ode23tb(@Mechanicalsystm,time,y0,options15s,par);
+% [t5,y5]= ode23s(@Mechanicalsystm,time,y0,options15s,par);
+
 %sol4= ode15i(@Mechanicalsystm,time,y0,options,par);
 
 

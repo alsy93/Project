@@ -1,4 +1,4 @@
-clc;clear all; close all
+clc;clear all; close all; hold on
 %dbstop if naninf
 %% SOYUZ DESCENT MODULE RE-ENTRY (FIRST PHASE)
 % Mission MS-03 on June 2, 2017
@@ -59,9 +59,10 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-N = 5000;
-time = linspace(0,delta_t,N); %almost every second
+% N = 2;
+% time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
+time = [0 delta_t];
 
 % %Build system of ODE's
 
@@ -77,37 +78,7 @@ par.g = g;
 par.eff = eff;
 par.Re = Re;
 
-% Try different options
-
-%options = odeset;
-%options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
-%options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-%options = odeset('RelTol',1e-8,'AbsTol',1e-9,'OutputFcn',@odeplot,'Stats','on');
-%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 %@odephas3,'MaxStep',1e-2*abs(delta_t));
-%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-%                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
-%                  'Refine',25);
-
-options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20);
-options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,'MStateDependence','strong','MvPattern','S');
-
-[t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
-[t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
-[t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
-%sol4= ode15i(@Mechanicalsystm,time,y0,options,par);
-
-
-%Number of function evaluations
-
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol1.y,2), sol1.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol2.y,2), sol2.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol3.y,2), sol3.stats.nfevals) ;
-%fprintf('No. points = %d, \t fcount = %d \n', size(sol4.y,2), sol4.stats.nfevals) ;
-
-
+[t, y] = integrator(y0,time,par);
 
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
