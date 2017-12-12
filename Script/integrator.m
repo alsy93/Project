@@ -14,23 +14,27 @@ function [t, y] = integrator(y0,time,par)
 
             dydt = zeros(4,1);
 
-            dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 + par.g*sind(gamma);
-            dydt(2,1) = -((rho*par.g)/(2*par.beta))*par.eff*v - (par.g*cosd(gamma)/v)  + v*cosd(gamma)/(par.Re + h);
+            dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
+            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v - (par.g*cosd(gamma)/(v)) - v*cosd(gamma)/(par.Re + h);
             dydt(3,1) = v*sind(gamma);
-            dydt(4,1) = v*cosd(gamma)/(par.Re + h);
+            dydt(4,1) = v*cosd(gamma)/(par.Re+ h);
 
     end
 % Find the corresponding density at each evaluation
+
     function rho = varrho(h)
 %             [~, ~, ~, ~, ~, rhof, ~, ~, ~, ~, ~, ~,~ ] = atmo(h);
 %             rhof = flipud(rhof);
 %             rho = rhof(1);
+
         if h > 20 %after tropopause
               h = h*1e3;
-              [rho,~, ~, ~, ~, ~] = atmos(h);
+              [rho,~, ~, ~, ~, ~] = atmos(h);   %UM: [kg/m^3]
+              rho = rho*1e9;                    %UM: [kg/km^3]
         else 
               h = h*1e3;
-              [rho,~, ~, ~,~]=tropos(h);
+              [rho,~, ~, ~,~]=tropos(h);        %UM: [kg/m^3]
+              rho = rho*1e9;                    %UM: [kg/km^3]
         end
     end
 
@@ -71,9 +75,38 @@ figure(3)
 % fprintf('No. points = %d, \t fcount = %d \n', size(sol3.y,2), sol3.stats.nfevals) ;
 %fprintf('No. points = %d, \t fcount = %d \n', size(sol4.y,2), sol4.stats.nfevals) ;
 
-t = t1;y = y1;
+t = t3;y = y3;
 % t = t2;y = y2;
 % t = t3;y = y3;
 % t = t4;y = y4;
 
+% Plotting of the results
+
+
+    figure(5)
+    
+      
+        ax1 = subplot(2,2,1);
+        plot(ax1,t,y(:,1))
+        title('Velocity')
+        grid on
+        
+        ax2 = subplot(2,2,2);
+        plot(ax2,t,y(:,2))
+        title('Flight path angle')
+        grid on
+        
+        ax3 = subplot(2,2,3);
+        plot(ax3,t,y(:,3))
+        title('Altitude')
+        grid on
+        
+        ax4 = subplot(2,2,4);
+        plot(ax4,t,y(:,4))
+        title('Latitude')
+        grid on
+        
+    figure(6)
+        plot(varrho(y(:,3)),y(:,3))
+        title('Vehicle deceleration and atmospheric density')
 end

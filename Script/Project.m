@@ -20,7 +20,7 @@ c_l = 0.349;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
 %Simulation data
 Re = 6738;     %Radius of the Earth [km]
-g = 9.81e-3;   %Gravity acceleration [m/s^2]      
+g = 9.81e-3;   %Gravity acceleration [km/s^2]      
 gamma_0 = -1.5;%Initial flight path angle [°]
 gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
 
@@ -59,12 +59,12 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-% N = 2;
+% N = 500;
 % time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
 time = [0 delta_t];
 
-% %Build system of ODE's
+% Build system of ODE's
 
 y0.v0 = v_0;
 y0.gamma0 = gamma_0;
@@ -75,8 +75,10 @@ y0 = [y0.v0 y0.gamma0 y0.h0 y0.lat0];
 par.rho_s = rho_s;
 par.beta = beta;
 par.g = g;
-par.eff = eff;
+par.eff = c_l/c_d;
 par.Re = Re;
+
+% Solve mechanical part
 
 [t, y] = integrator(y0,time,par);
 
