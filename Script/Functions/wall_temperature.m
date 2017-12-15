@@ -8,18 +8,24 @@ function [T_w, q_rad_TS] = wall_temperature(v, h, parT)
 %
 
 tic
-% Vectors initialization
-N = length(v);
-T_w = zeros(1,N);
-q_rad_TS = zeros(1,N);
+
 rho = varrho(h);
 
-%
-for i=1:N
-    q_rad_TS(i) = parT.C * Rn^parT.a * rho(i)^parT.b * v(i)^parT.d;
-    T_w(i) = (q_rad_TS(i) / (parT.sigma * parT.emiss))^(1/4);
-end
-toc=ram;
+q_rad_TS = parT.C .* parT.Rn^parT.a .* rho.^parT.b .* v.^parT.d;
+T_w = (q_rad_TS ./ (parT.sigma * parT.emiss)).^(1/4);
+
+% % Vectors initialization
+% N = length(v);
+% T_w = zeros(1,N);
+% q_rad_TS = zeros(1,N);
+% rho = varrho(h);
+% 
+% %
+% for i=1:N
+%     q_rad_TS(i) = parT.C * parT.Rn^parT.a * rho(i)^parT.b * v(i)^parT.d;
+%     T_w(i) = (q_rad_TS(i) / (parT.sigma * parT.emiss))^(1/4);
+% end
+toc
 
 % Find the corresponding density at each evaluation
 

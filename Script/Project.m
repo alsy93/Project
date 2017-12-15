@@ -96,7 +96,7 @@ par.Re = Re;
 v = y(:,1).*1e3;
 h = y(:,3).*1e3;
 
-% Solve thermal part
+%% Solve thermal part
 
 parT.Rn = Rn;
 parT.emiss = emiss;
@@ -107,6 +107,8 @@ parT.a = a;
 parT.b = b;
 parT.C = C;
 parT.d = d;
+
+[T_w, q_rad_TS] = wall_temperature(v, h, parT);
 
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
