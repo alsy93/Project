@@ -9,25 +9,29 @@ function [t, y] = integrator(y0,time,par)
             gamma = y(2);
             h = y(3);
             lat = y(4);
+            long = y(5);
+            hea = y(6);
+            
             
             rho = varrho(h);
 
-            dydt = zeros(4,1);
+            dydt = zeros(6,1);
 
             dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
-            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v - (par.g*cosd(gamma)/(v)) - v*cosd(gamma)/(par.Re + h);
+            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v +cosd(gamma)*(- (par.g/(v)) + v/( par.Re+ h));
             dydt(3,1) = v*sind(gamma);
-            dydt(4,1) = v*cosd(gamma)/(par.Re+ h);
+            dydt(4,1) = v*cosd(gamma)*cosd(hea)/(par.Re+ h);
+            dydt(5,1) = v*cosd(gamma)*sind(hea)/((par.Re+ h)*cosd(lat));
+            dydt(6,1) = (v/(par.Re+ h))*cosd(gamma)*sind(hea)*tand(lat);
+            
+         
 
     end
 % Find the corresponding density at each evaluation
 
     function rho = varrho(h)
-%             [~, ~, ~, ~, ~, rhof, ~, ~, ~, ~, ~, ~,~ ] = atmo(h);
-%             rhof = flipud(rhof);
-%             rho = rhof(1);
 
-        if h > 20 %after tropopause
+        if h > 11 %after troposphere
               h = h*1e3;
               [rho,~, ~, ~, ~, ~] = atmos(h);   %UM: [kg/m^3]
               rho = rho*1e9;                    %UM: [kg/km^3]
@@ -53,15 +57,16 @@ function [t, y] = integrator(y0,time,par)
 %                  'Refine',25);
 
 options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-5);
+                 @odeplot,'OutputSel',[1 2 3 4 5 6],'Stats','on','InitialStep',1e-5);
 options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-                 @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-05,'MStateDependence','strong','MvPattern','S');
+                 @odeplot,'OutputSel',[1 2 3 4 5 6],'Stats','on','InitialStep',1e-05,...
+                 'MStateDependence','strong','MvPattern','S');
 figure(1)
 [t1,y1]= ode45(@Mechanicalsystm,time,y0,options15s,par);
 figure(2)
 [t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
-figure(3)
-[t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
+% figure(3)
+% [t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
 % figure(4)
 % [t4,y4]= ode23tb(@Mechanicalsystm,time,y0,options15s,par);
 % [t5,y5]= ode23s(@Mechanicalsystm,time,y0,options15s,par);
@@ -75,10 +80,10 @@ figure(3)
 % fprintf('No. points = %d, \t fcount = %d \n', size(sol3.y,2), sol3.stats.nfevals) ;
 %fprintf('No. points = %d, \t fcount = %d \n', size(sol4.y,2), sol4.stats.nfevals) ;
 
-t = t3;y = y3;
+t = t1;y = y1;
 % t = t2;y = y2;
 % t = t3;y = y3;
-% t = t4;y = y4;
+%  t = t4;y = y4;
 
 % Plotting of the results
 
@@ -105,6 +110,17 @@ t = t3;y = y3;
         plot(ax4,t,y(:,4))
         title('Latitude')
         grid on
+        figure (7)
+        ax5 = subplot(2,2,1);
+        plot(ax5,t,y(:,5))
+        title('Longitude')
+        grid on
+        
+        ax6 = subplot(2,2,2);
+        plot(ax6,t,y(:,6))
+        title('Heading angle')
+        grid on
+        
         
     figure(6)
         plot(varrho(y(:,3)),y(:,3))

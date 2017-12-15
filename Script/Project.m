@@ -28,13 +28,14 @@ h_0 = 99.7;    %Altitude at starting point [m]
 h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [m]
 v_0 = 7.619;   %Initial velocity magnitude [m/s]
 v_f = 0.216;   %Final velocity magnitude [m/s]
-beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [kPa*m/s^2]
+beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [Pa]
 %---------------------------------------------------------------------------------
 lat_0 = 34.35; %Initial latitude [°]
-lat_0rad = lat_0*(pi/180);
 lat_f = 47.22; %Final latitude [°]
 long_0 = 45.56;%Initial longitude [°]
-long_f = 69.36;
+long_f = 69.36;%Final longitude [°]
+hea_0 = 47.03; %Initial heading angle [°]
+hea_f =  62.80;%Final heading angle [°]
 
 % Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
 % and it is referred to Moscow time
@@ -47,9 +48,15 @@ timezone = +3.00;              %Moscow timezone
 
 % Data of the termical part
 
-Rn = 2.235e-3; %Nose radius [m]
-e = 0.85; %Emissivity coefficient
-cd = 1.4; %Conductive coefficient [W/(mK)]
+Rn = 2.235;             %Nose radius of stagnation point [m]
+emiss = 0.85;           %Emissivity coefficient
+cd = 1.4;               %Conductive coefficient [W/(mK)]
+sigma = 5.670373e-8;    %Stefan-Boltzmann constant [W/(m^2*K^4)]
+C = 1;                  % First constant of Tauber-Sutton
+a = 1;                  % Second constant of Tauber-Sutton
+b = 1.2;                % Third constant of Tauber-Sutton
+d = 8.5;                % Fourth constant of Tauber-Sutton
+
 
 %======== Start modeling and simulation ================================
 
@@ -70,7 +77,9 @@ y0.v0 = v_0;
 y0.gamma0 = gamma_0;
 y0.h0 = h_0;
 y0.lat0 = lat_0;
-y0 = [y0.v0 y0.gamma0 y0.h0 y0.lat0];
+y0.long0 = long_0;
+y0.hea0 = hea_0;
+y0 = [y0.v0 y0.gamma0 y0.h0 y0.lat0 y0.long0 y0.hea0];
 
 par.rho_s = rho_s;
 par.beta = beta;
@@ -81,6 +90,23 @@ par.Re = Re;
 % Solve mechanical part
 
 [t, y] = integrator(y0,time,par);
+
+%Convert km in m
+
+v = y(:,1).*1e3;
+h = y(:,3).*1e3;
+
+% Solve thermal part
+
+parT.Rn = Rn;
+parT.emiss = emiss;
+parT.sigma = sigma;
+parT.cd = cd;
+parT.Rn = Rn;
+parT.a = a;
+parT.b = b;
+parT.C = C;
+parT.d = d;
 
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
