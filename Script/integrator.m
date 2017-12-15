@@ -14,16 +14,17 @@ function [t, y] = integrator(y0,time,par)
             
             
             rho = varrho(h);
+            
             [Me,Ne] = MeNe(lat,par);
 
             dydt = zeros(6,1);
 
             dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
-            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v +cosd(gamma)*(- (par.g/(v)) + v/(Me+ h));
+            dydt(2,1) = ((rho*par.g)/(2*par.beta))*par.eff*v + cosd(gamma)*(- (par.g/(v)) + v/(Me+ h));
             dydt(3,1) = v*sind(gamma);
             dydt(4,1) = v*cosd(gamma)*cosd(hea)/(Me+ h);
             dydt(5,1) = v*cosd(gamma)*sind(hea)/((Ne+ h)*cosd(lat));
-            dydt(6,1) = (v/(Me+ h))*cosd(gamma)*sind(hea)*tand(lat);
+            dydt(6,1) = (v/(Ne+ h))*cosd(gamma)*sind(hea)*tand(lat);
             
          
 
@@ -45,8 +46,8 @@ function [t, y] = integrator(y0,time,par)
 
     function [Me,Ne] = MeNe(lat,par)
         
-              Me = (par.Re*(1-par.e^2))/((1-par.e^2*sin(lat)^2))^(3/2);
-              Ne = par.Re/sqrt(1-par.e^2*sin(lat)^2);
+              Me = (par.Re*(1-par.e^2))./((1-par.e^2.*sin(lat).^2).^(3/2));
+              Ne = par.Re./sqrt(1-par.e^2.*sin(lat).^2);
     end
 
 % Try different options
@@ -89,13 +90,20 @@ t = t1;y = y1;
 % t = t2;y = y2;
 % t = t3;y = y3;
 %  t = t4;y = y4;
-
+[Me,Ne] = MeNe(y(:,4),par);
 % Plotting of the results
 
-
+    figure(4)
+        
+        plot(y(:,4),Me./par.Re,y(:,4),Ne./par.Re,'LineWidth',2)
+        legend('percentage variation of the meridian radius of curvature ME',...
+            'percenage variation of the prime vertical radius of curvature NE')
+        xlabel('Latitude [°]');ylabel('Me/Rearth, Ne/Rearth')
+        grid on
+        grid minor
+    
     figure(5)
     
-      
         ax1 = subplot(2,3,1);
         plot(ax1,t,y(:,1))
         title('Velocity')

@@ -40,8 +40,8 @@ lat_0 = 34.35; %Initial latitude [°]
 lat_f = 47.22; %Final latitude [°]
 long_0 = 45.56;%Initial longitude [°]
 long_f = 69.36;%Final longitude [°]
-hea_0 =60; %47.03; %Initial heading angle [°]
-hea_f =  62.80;%Final heading angle [°]
+hea_0 = 47.03; %Initial heading angle [°]
+hea_f = 62.80;%Final heading angle [°]
 
 % Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
 % and it is referred to Moscow time
@@ -76,7 +76,7 @@ delta_t = UTC_t_f - UTC_t_0;
 % N = 500;
 % time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
-time = [0 1000];
+time = [0 delta_t];
 
 % Build system of ODE's
 
