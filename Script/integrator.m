@@ -14,15 +14,16 @@ function [t, y] = integrator(y0,time,par)
             
             
             rho = varrho(h);
+            [Me,Ne] = MeNe(lat,par);
 
             dydt = zeros(6,1);
 
             dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
-            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v +cosd(gamma)*(- (par.g/(v)) + v/( par.Re+ h));
+            dydt(2,1) = +((rho*par.g)/(2*par.beta))*par.eff*v +cosd(gamma)*(- (par.g/(v)) + v/(Me+ h));
             dydt(3,1) = v*sind(gamma);
-            dydt(4,1) = v*cosd(gamma)*cosd(hea)/(par.Re+ h);
-            dydt(5,1) = v*cosd(gamma)*sind(hea)/((par.Re+ h)*cosd(lat));
-            dydt(6,1) = (v/(par.Re+ h))*cosd(gamma)*sind(hea)*tand(lat);
+            dydt(4,1) = v*cosd(gamma)*cosd(hea)/(Me+ h);
+            dydt(5,1) = v*cosd(gamma)*sind(hea)/((Ne+ h)*cosd(lat));
+            dydt(6,1) = (v/(Me+ h))*cosd(gamma)*sind(hea)*tand(lat);
             
          
 
@@ -42,7 +43,11 @@ function [t, y] = integrator(y0,time,par)
         end
     end
 
-
+    function [Me,Ne] = MeNe(lat,par)
+        
+              Me = (par.Re*(1-par.e^2))/((1-par.e^2*sin(lat)^2))^(3/2);
+              Ne = par.Re/sqrt(1-par.e^2*sin(lat)^2);
+    end
 
 % Try different options
 
@@ -91,38 +96,44 @@ t = t1;y = y1;
     figure(5)
     
       
-        ax1 = subplot(2,2,1);
+        ax1 = subplot(2,3,1);
         plot(ax1,t,y(:,1))
         title('Velocity')
         grid on
+        grid minor
         
-        ax2 = subplot(2,2,2);
+        ax2 = subplot(2,3,2);
         plot(ax2,t,y(:,2))
         title('Flight path angle')
         grid on
+        grid minor
         
-        ax3 = subplot(2,2,3);
+        ax3 = subplot(2,3,3);
         plot(ax3,t,y(:,3))
         title('Altitude')
         grid on
+        grid minor
         
-        ax4 = subplot(2,2,4);
+        ax4 = subplot(2,3,4);
         plot(ax4,t,y(:,4))
         title('Latitude')
         grid on
-        figure (7)
-        ax5 = subplot(2,2,1);
+        grid minor
+        
+        ax5 = subplot(2,3,5);
         plot(ax5,t,y(:,5))
         title('Longitude')
         grid on
+        grid minor
         
-        ax6 = subplot(2,2,2);
+        ax6 = subplot(2,3,6);
         plot(ax6,t,y(:,6))
         title('Heading angle')
         grid on
-        
+        grid minor
         
     figure(6)
         plot(varrho(y(:,3)),y(:,3))
         title('Vehicle deceleration and atmospheric density')
+        grid on
 end

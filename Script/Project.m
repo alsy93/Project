@@ -7,6 +7,7 @@ clc;clear all; close all; hold on
 addpath(genpath('Functions'))
 
 % Data of the mechanical part
+
 %Body data
 m = 2.9e3;       %Mass [kg]
 l = 2.1e-3;       %Length [km]
@@ -14,27 +15,32 @@ d = 2.2e-3;       %Diameter [km]
 Vol = 9e-9;       %Volume [km^3]
 rho_s = m/Vol; %Density [kg/km^3]
 A_ref = 3.8e-6;    %Reference area [km^2]
+
 %Aerodynamic data
 eff = 0.26;    %Aerodynamic efficiency
 c_l = 0.349;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
+
 %Simulation data
-Re = 6738;     %Radius of the Earth [km]
-g = 9.81e-3;   %Gravity acceleration [km/s^2]      
-gamma_0 = -1.5;%Initial flight path angle [°]
-gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
+Re = 6738;              %Radius of the Earth at equator [km]
+Rp = 6357;              %Radius of the Earth at the poles [km]
+e = sqrt(Re^2-Rp^2)/Re; %Eccentricity due to Earth oblateness
+g = 9.81e-3;            %Gravity acceleration [km/s^2] 
 
 h_0 = 99.7;    %Altitude at starting point [m]
 h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [m]
 v_0 = 7.619;   %Initial velocity magnitude [m/s]
 v_f = 0.216;   %Final velocity magnitude [m/s]
 beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [Pa]
-%---------------------------------------------------------------------------------
+
+%Angles data
+gamma_0 = -1.5;%Initial flight path angle [°]
+gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
 lat_0 = 34.35; %Initial latitude [°]
 lat_f = 47.22; %Final latitude [°]
 long_0 = 45.56;%Initial longitude [°]
 long_f = 69.36;%Final longitude [°]
-hea_0 = 47.03; %Initial heading angle [°]
+hea_0 =60; %47.03; %Initial heading angle [°]
 hea_f =  62.80;%Final heading angle [°]
 
 % Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
@@ -45,17 +51,18 @@ t_0 = [2017 06 02 16 47 25];   %Initial Time
 t_f = [2017 06 02 16 55 39];   %Time at which the parachute will be opened [s]
 t_ref = [2010 01 01 00 00 00]; %Referring time
 timezone = +3.00;              %Moscow timezone
+%---------------------------------------------------------------------------------
+%Data of the termical part
 
-% Data of the termical part
-
-Rn = 2.235;             %Nose radius of stagnation point [m]
+Rn = 2.235e2;          %Nose radius of stagnation point [cm]
 emiss = 0.85;           %Emissivity coefficient
 cd = 1.4;               %Conductive coefficient [W/(mK)]
 sigma = 5.670373e-8;    %Stefan-Boltzmann constant [W/(m^2*K^4)]
 C = 1;                  % First constant of Tauber-Sutton
 a = 1;                  % Second constant of Tauber-Sutton
-b = 1.2;                % Third constant of Tauber-Sutton
+b = 1.6;                % Third constant of Tauber-Sutton
 d = 8.5;                % Fourth constant of Tauber-Sutton
+ 
 
 
 %======== Start modeling and simulation ================================
@@ -69,7 +76,7 @@ delta_t = UTC_t_f - UTC_t_0;
 % N = 500;
 % time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
-time = [0 delta_t];
+time = [0 1000];
 
 % Build system of ODE's
 
@@ -86,6 +93,7 @@ par.beta = beta;
 par.g = g;
 par.eff = c_l/c_d;
 par.Re = Re;
+par.e = e;
 
 % Solve mechanical part
 
@@ -93,7 +101,7 @@ par.Re = Re;
 
 %Convert km in m
 
-v = y(:,1).*1e3;
+v = y(:,1);%.*1e3;
 h = y(:,3).*1e3;
 
 %% Solve thermal part
