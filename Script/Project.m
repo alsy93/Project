@@ -9,12 +9,12 @@ addpath(genpath('Functions'))
 % Data of the mechanical part
 
 %Body data
-m = 2.9e3;       %Mass [kg]
-l = 2.1e-3;       %Length [km]
-d = 2.2e-3;       %Diameter [km]
-Vol = 9e-9;       %Volume [km^3]
-rho_s = m/Vol; %Density [kg/km^3]
-A_ref = 3.8e-6;    %Reference area [km^2]
+m = 2.9e3;          %Mass [kg]
+l = 2.1e-3;         %Length [km]
+d = 2.2e-3;         %Diameter [km]
+Vol = 9e-9;         %Volume [km^3]
+rho_s = m/Vol;      %Density of the structure [kg/km^3]
+A_ref = 3.8e-6;     %Reference area [km^2]
 
 %Aerodynamic data
 eff = 0.26;    %Aerodynamic efficiency
@@ -27,15 +27,14 @@ Rp = 6357;              %Radius of the Earth at the poles [km]
 e = sqrt(Re^2-Rp^2)/Re; %Eccentricity due to Earth oblateness
 g = 9.81e-3;            %Gravity acceleration [km/s^2] 
 
-h_0 = 99.7;    %Altitude at starting point [m]
-h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [m]
-v_0 = 7.619;   %Initial velocity magnitude [m/s]
-v_f = 0.216;   %Final velocity magnitude [m/s]
+h_0 = 99.7;    %Altitude at starting point [km]
+h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [km]
+v_0 = 7.619;   %Initial velocity magnitude [km/s]
+v_f = 0.216;   %Final velocity magnitude [km/s]
 beta = (m*g/(c_d*A_ref)); %Ballistic coefficient ratio [Pa]
 
 %Angles data
 gamma_0 = -1.5;%Initial flight path angle [°]
-gamma_0rad = gamma_0*(pi/180);%Initial flight path angle[rad]
 lat_0 = 34.35; %Initial latitude [°]
 lat_f = 47.22; %Final latitude [°]
 long_0 = 45.56;%Initial longitude [°]
@@ -62,6 +61,7 @@ C = 1;                  % First constant of Tauber-Sutton
 a = 1;                  % Second constant of Tauber-Sutton
 b = 1.6;                % Third constant of Tauber-Sutton
 d = 8.5;                % Fourth constant of Tauber-Sutton
+Ks = 1.7415e-4;         %Costant of Sutton-Graves for Earth
  
 
 
@@ -76,7 +76,7 @@ delta_t = UTC_t_f - UTC_t_0;
 % N = 500;
 % time = linspace(0,delta_t,N); %almost every second
 %time = linspace(UTC_t_0,UTC_t_f,N);
-time = [0 delta_t];
+time = [0 1200];%delta_t];
 
 % Build system of ODE's
 
@@ -101,8 +101,10 @@ par.e = e;
 
 %Convert km in m
 
-v = y(:,1);%.*1e3;
+v = y(:,1);
 h = y(:,3).*1e3;
+lat = y(:,4);
+long = y(:,5);
 
 %% Solve thermal part
 
@@ -115,8 +117,11 @@ parT.a = a;
 parT.b = b;
 parT.C = C;
 parT.d = d;
+parT.Ks = Ks;
+parT.A_ref = A_ref;
 
-[T_w, q_rad_TS] = wall_temperature(v, h, parT);
+[T_w, q_rad_TS] = wall_temperature(v,h,parT);
+q_cond = convective_flux(v,h,parT);
 
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
