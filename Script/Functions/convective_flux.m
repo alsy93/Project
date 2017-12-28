@@ -16,6 +16,7 @@ tic
 rho = varrho(h);
 q_cond = parT.Ks.*(rho./parT.Rn).^(1/2).*(v.^3);
 toc
+
 % Plotting  of results
 
 figure(8)

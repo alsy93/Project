@@ -12,7 +12,9 @@ function [h_Tmax,Tmax] = thermal_shield(v,h,parT,T_w, q_rad_TS,q_cond,parT)
         % q_flux_in_Wcm^: heat flux to air (W/cm^2)
         % dthabdt_cms: rate of shield consumption (cm/s)
 
-        th_ab = 0.036;              % ablation shield thickness (m)%MUST BE VERIFIED
+        th_ab = 0.036;              % ablation shield thickness (m)%From International Space Station (ISS) Soyuz Vehicle
+                                    % Descent Module Evaluation of Thermal Protection
+                                    % System (TPS) Penetration Characteristics
         th_s = 0.002;               % Al-Mg thickness (m)
         k_s = 20;                   % thermal conductivity of steel (W/m-K) %MUST TO BE DETERMINATED
         q_flux = 100*100^2;         % heat flux (W/m^2)
