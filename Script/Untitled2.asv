@@ -1,0 +1,6 @@
+h = [35; 36; 37];
+g = [60;61;62];
+R1 = 
+for i = 1:3
+R1(h(i))=[cosd(h(i)) -sind(h(i)) 0; sind(h(i)) cosd(h(i)) 0;0 0 1];
+end

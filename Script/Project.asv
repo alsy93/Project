@@ -102,9 +102,11 @@ par.e = e;
 %Convert km in m
 
 v = y(:,1);
+gamma = y(:,2);
 h = y(:,3).*1e3;
 lat = y(:,4);
 long = y(:,5);
+hea = y(:,6);
 
 %% Solve thermal part
 
@@ -125,13 +127,10 @@ q_cond = convective_flux(v,h,parT);
 
 %% Ground track
 
-gamma = y(:,2);         %flight path angle which corresponds to the pitch angle
-hea = y(:,6);           %heading angle
-
 %No banking angle
 
-bank = zeros(length(v),1);
-[v_NED,v_body] = aer2body2NED(v,hea,-gamma,bank);
+bank = zeros(length(v));
+[v_NED,v_body]=aer2body2NED(v,hea,pitch,bank)
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
 %equatorial plane, while the Z axis passes trought the North Pole.
