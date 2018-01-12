@@ -3,7 +3,7 @@ function [v_NED,v_body]=aer2body2NED(v_sim,hea,pitch,bank)
 %local Cartesian coordinates (xNorth,yEast, zDown), given a local coordinate
 %system defined by Euler's angles for the reentry phase (heading, pitching,
 %banking angles).
-%Earth is considered as a perfect sphere
+%Earth is considered as an ellipsoid
 % INPUTs:
 %
 %v_sim                  [N x 1]                         Velocity vector

@@ -132,6 +132,7 @@ hea = y(:,6);           %heading angle
 
 bank = zeros(length(v),1);
 [v_NED,v_body] = aer2body2NED(v,hea,-gamma,bank);
+[v_ECEF]=ned2ecef_12(v_NED,lat,long,h);
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
 %equatorial plane, while the Z axis passes trought the North Pole.

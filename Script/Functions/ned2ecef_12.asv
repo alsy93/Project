@@ -3,14 +3,7 @@ function [v_ECEF]=ned2ecef_12(v_NED,lat,long,h)
 % yEast, zDown) to geocentric Earth-Centered Earth-Fixed
 %(ECEF) coordinates (X, Y, Z), given a local coordinate system defined by the geodetic
 %coordinates of its origin settled on the body (lat,long,h)
-%Earth is considered as an ellipsoid with the following properties:
-%                  Code: 7019
-%                  Name: 'Geodetic Reference System 1980'
-%            LengthUnit: 'kilometer'
-%         SemimajorAxis: 6378.137
-%         SemiminorAxis: 6356.75231414036
-%     InverseFlattening: 298.257222101
-%          Eccentricity: 0.0818191910428158
+%Earth is considered as a perfect sphere.
 % INPUTs:
 %
 %v_ECEF                 [3 x N]                         Velocity vector in
@@ -34,19 +27,25 @@ function [v_ECEF]=ned2ecef_12(v_NED,lat,long,h)
 if nargin ~= 4
     error('Incorrect number of inputs.  See help enu2ecef_12.')
 end
+if size(r_NED,1) ~= 3
+   error('Check the help of this function');
+end
 if size(v_NED,1) ~= 3
       error('Check the help of this function')
 end
 
 %Checking to see if length of ECEF matrix is the same as the length of the time vector
-N = size(v_NED,2);
+N = size(r_NED,2);
 if N ~= length(lat) || N ~= length(long) || N ~= length(h)
     error('Column size of ENU vector not equal to size of latitude, longitude and altitude vectors. Check inputs.')
 end
 
 %Creation of empty matrixes
+r_ECEF = zeros(3,N);
 v_ECEF = zeros(3,N);
 
 for j = 1:N 
-    v_ECEF(:,j) = ned2ecef(v_NED(1,j),v_NED(2,j),v_NED(3,j),lat(j),long(j),h(j),referenceEllipsoid('Geodetic Reference System 1980','km'));
+    r_ECEF(:,j) = ned2ecef(r_NED(1,j),r_NED(2,j),r_NED(3,j),lat(j),long(j),h(j),referenceSphere);
+    v_ECEF(:,j) = ned2ecef(v_NED(1,j),v_NED(2,j),v_NED(3,j),lat(j),long(j),h(j),referenceSphere);
+
 end
