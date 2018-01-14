@@ -17,9 +17,9 @@ rho_s = m/Vol;      %Density of the structure [kg/km^3]
 A_ref = 3.8e-6;     %Reference area [km^2]
 
 %Aerodynamic data
-eff = 0.26;    %Aerodynamic efficiency
-c_l = 0.349;   %Lift coefficient
+c_l = 0.374;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
+eff = c_l/c_d; %Aerodynamic efficiency
 
 %Simulation data
 Re = 6738;              %Radius of the Earth at equator [km]
@@ -73,10 +73,7 @@ UTC_t_0 = localtime2UTC(t_0,timezone) - UTC_ref;
 UTC_t_f = localtime2UTC(t_f,timezone) - UTC_ref;
 delta_t = UTC_t_f - UTC_t_0;
 
-% N = 500;
-% time = linspace(0,delta_t,N); %almost every second
-%time = linspace(UTC_t_0,UTC_t_f,N);
-time = [0 1200];%delta_t];
+time = [0 3000];%delta_t];
 
 % Build system of ODE's
 
@@ -137,8 +134,8 @@ h_km = y(:,3);
 UTC_TIME = UTC_t_0 + t;   %Time in wich simulation starts
 [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
 
-[vargout] = GroundTrack(v_ECI,lat,long);
-
+[vargout] = groundtrack(lat,long);
+ %;
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
 %equatorial plane, while the Z axis passes trought the North Pole.

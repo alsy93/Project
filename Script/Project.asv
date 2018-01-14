@@ -137,7 +137,7 @@ h_km = y(:,3);
 UTC_TIME = UTC_t_0 + t;   %Time in wich simulation starts
 [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
 
-[vargout] = GroundTrack(v_ECI,lat,long)
+[vargout] = groundtrack(v,lat,long);
 
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
