@@ -121,18 +121,24 @@ parT.Ks = Ks;
 parT.A_ref = A_ref;
 
 [T_w, q_rad_TS] = wall_temperature(v,h,parT);
-q_cond = convective_flux(v,h,parT);
+q_conv = convective_flux(v,h,parT);
 
 %% Ground track
 
-gamma = y(:,2);         %flight path angle which corresponds to the pitch angle
-hea = y(:,6);           %heading angle
+gamma = y(:,2);             %flight path angle which corresponds to the pitch angle
+hea = y(:,6);               %heading angle
+bank = zeros(length(v),1);  %No banking angle
+h_km = y(:,3);
 
-%No banking angle
+[r_NED,v_NED,v_body] = body2NED(h_km,v,-hea,-gamma,bank,par);
 
-bank = zeros(length(v),1);
-[v_NED,v_body] = aer2body2NED(v,hea,-gamma,bank);
-[v_ECEF]=ned2ecef_12(v_NED,lat,long,h);
+[r_ECEF,v_ECEF]=ned2ecef(r_NED,v_NED,lat,long,h_km,par);
+
+UTC_TIME = UTC_t_0 + t;   %Time in wich simulation starts
+[r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
+
+[vargout] = GroundTrack(v_ECI,lat,long);
+
 
 %ECI frame has the Gamma point direction and X-Y plane lies on the
 %equatorial plane, while the Z axis passes trought the North Pole.

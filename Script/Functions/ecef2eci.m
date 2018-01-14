@@ -44,20 +44,14 @@ if N ~= length(UTC_time)
     error('Size of ECEF vector not equal to size of time vector.  Check inputs.')
 end
 
-%Definition of Greenwich mean time at t0 (fixed at 21 March 2010 at 00:00:00)
+%Definition of Greenwich mean time at t0 (fixed at 2 June 2017 at 13:47:25)
 %and of Greenwich hour angle
 we = (2*pi/365.26)/(24*3600); %angular velocity of the Earth
-UTC_t0 =  posixtime(datetime([2010 03 21 00 00 00]))*ones(1,N);
+UTC_t0 =  posixtime(datetime([2010 03 21 13 47 25]))*ones(1,N);
 GHA = zeros(1,N);
 
 %Definition of Greenwich hour angle (Greenwich sideral angle at t0)
 GST = GHA + we*(UTC_time-UTC_t0);
-
-%Creation of direction cosine matrix for ECEF
-dcm_ECEF2ECI = [cos(GST) -sin(GST) 0;sin(GST) cos(GST) 0; 0 0 1];
-
-%Creation the derivated matrix to find velocity 
-dcm_dot_ECEF2ECI = [-sin(GST).*we, - cos(GST).*we, 0; cos(GST).*we, -sin(GST).*we, 0;0, 0, 1];
 
 %Creation of empty matrixes
 r_ECI = zeros(3,N);
@@ -65,7 +59,17 @@ v_ECI = zeros(3,N);
 
 for j = 1:N  %Iterating thru the number of positions provided by user
              % Rotating the ECI vector into the ECEF frame via the GST angle about the Z-axis
-    r_ECI(:,j) = dcm_ECEF2ECI(GST(j))*r_ECEF(:,j);
-    v_ECI(:,j) = dcm_dot_ECEF2ECI(GST(j))*r_ECEF(:,j) + dcm_ECEF2ECI(GST(j))*v_ECEF(:,j);
+    
+    %Creation of direction cosine matrix for ECEF
+    dcm_ECEF2ECI = [cos(GST(j)) -sin(GST(j)) 0;...
+                    sin(GST(j)) cos(GST(j)) 0;...
+                    0 0 1];
+
+    %Creation the derivated matrix to find velocity 
+    dcm_dot_ECEF2ECI = [-sin(GST(j))*we, - cos(GST(j))*we, 0;...
+                        cos(GST(j))*we, -sin(GST(j))*we, 0; 0, 0, 1];
+         
+    r_ECI(:,j) = dcm_ECEF2ECI*r_ECEF(:,j);
+    v_ECI(:,j) = dcm_dot_ECEF2ECI*r_ECEF(:,j) + dcm_ECEF2ECI*v_ECEF(:,j);
 end
 end

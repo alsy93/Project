@@ -15,7 +15,7 @@ function [h_Tmax,Tmax] = thermal_shield(v,h,parT,T_w, q_rad_TS,q_cond,parT)
         th_ab = 0.036;              % ablation shield thickness (m)%From International Space Station (ISS) Soyuz Vehicle
                                     % Descent Module Evaluation of Thermal Protection
                                     % System (TPS) Penetration Characteristics
-        th_s = 0.002;               % Al-Mg thickness (m)
+        th_s = 0.010;               % Steel thickness (m)
         k_s = 20;                   % thermal conductivity of steel (W/m-K) %MUST TO BE DETERMINATED
         q_flux = 100*100^2;         % heat flux (W/m^2)
         T_m = 755;                  % melting temperature ablative shield (K)
