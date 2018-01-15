@@ -9,9 +9,9 @@ function [vargout] = groundtrack(lat,long)
     immagine = imread('Textures\earth.jpg');
 %Resize in a proper way the graphic
     imagesc([-180 180],[-90 90],flip(immagine))
-    axis([0 80 0 80]);
+    axis([0 100 0 80]);
     
-    vargout(1) = plot(lat,long,'Or');
+    vargout(1) = plot(long,lat,'Or');
 
 end
 

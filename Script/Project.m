@@ -17,7 +17,7 @@ rho_s = m/Vol;      %Density of the structure [kg/km^3]
 A_ref = 3.8e-6;     %Reference area [km^2]
 
 %Aerodynamic data
-c_l = 0.374;   %Lift coefficient
+c_l = 2.1;%0.374;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
 eff = c_l/c_d; %Aerodynamic efficiency
 
@@ -27,7 +27,7 @@ Rp = 6357;              %Radius of the Earth at the poles [km]
 e = sqrt(Re^2-Rp^2)/Re; %Eccentricity due to Earth oblateness
 g = 9.81e-3;            %Gravity acceleration [km/s^2] 
 
-h_0 = 99.7;    %Altitude at starting point [km]
+h_0 =99.7;    %Altitude at starting point [km]
 h_f = 10.8;    %Altitude in which modelling finish and parachute will opened [km]
 v_0 = 7.619;   %Initial velocity magnitude [km/s]
 v_f = 0.216;   %Final velocity magnitude [km/s]
@@ -39,7 +39,7 @@ lat_0 = 34.35; %Initial latitude [°]
 lat_f = 47.22; %Final latitude [°]
 long_0 = 45.56;%Initial longitude [°]
 long_f = 69.36;%Final longitude [°]
-hea_0 = 47.03; %Initial heading angle [°]
+hea_0 =60;% 47.03; %Initial heading angle [°]
 hea_f = 62.80;%Final heading angle [°]
 
 % Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
@@ -134,9 +134,23 @@ h_km = y(:,3);
 UTC_TIME = UTC_t_0 + t;   %Time in wich simulation starts
 [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
 
-[vargout] = groundtrack(lat,long);
- %;
+[vargout] = groundtrack(long,lat);
 
-%ECI frame has the Gamma point direction and X-Y plane lies on the
-%equatorial plane, while the Z axis passes trought the North Pole.
-ECI = eye(3);
+%% Glide Re-entry
+
+%[tg, yg] = glide_integrator(y0,time,par);
+
+
+%% Skip Re-entry
+% [ts,ys] = skipreentry(y0,time,par);
+% 
+% %Convert km in m
+% 
+% v_skip = ys(:,1);
+% h_skip = ys(:,3).*1e3;
+% lat_skip = ys(:,4);
+% long_skip = ys(:,5);
+% 
+% groundtrack(long_skip,lat_skip);
+% 
+

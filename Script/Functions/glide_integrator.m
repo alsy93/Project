@@ -1,4 +1,4 @@
-function [t, y] = integrator(y0,time,par)
+function [t, y] = glide_integrator(y0,time,par)
 
     function dydt = Mechanicalsystm(t,y,par)
             
@@ -17,10 +17,10 @@ function [t, y] = integrator(y0,time,par)
             dydt = zeros(6,1);
 
             dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
-            dydt(2,1) = ((rho*par.g)/(2*par.beta))*par.eff*v + cosd(gamma)*(- (par.g/(v)) + v/(par.Re+ h));
+            dydt(2,1) = 0;
             dydt(3,1) = v*sind(gamma);
-            dydt(4,1) = v*cosd(gamma)*cosd(hea)/(Me+ h);
-            dydt(5,1) = v*cosd(gamma)*sind(hea)/((Ne+ h)*cosd(lat));
+            dydt(4,1) = v*cosd(gamma)*sind(hea)/(Me+ h);
+            dydt(5,1) = v*cosd(gamma)*cosd(hea)/((Ne+ h)*cosd(lat));
             dydt(6,1) = (v/(par.Re+ h))*cosd(gamma)*cosd(hea)*tand(lat);
             
          
