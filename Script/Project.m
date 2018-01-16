@@ -17,7 +17,7 @@ rho_s = m/Vol;      %Density of the structure [kg/km^3]
 A_ref = 3.8e-6;     %Reference area [km^2]
 
 %Aerodynamic data
-c_l = 2.1;%0.374;   %Lift coefficient
+c_l = 0.349;   %Lift coefficient
 c_d = 1.341;   %Drag coefficient
 eff = c_l/c_d; %Aerodynamic efficiency
 
