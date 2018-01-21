@@ -22,29 +22,29 @@ T_w = (q_rad_TS ./ (parT.sigma * parT.emiss)).^(1/4);
 
 % Plotting  of results
 
-figure(7)
+figure(8)
         ax1 = subplot(2,2,1);
         plot(ax1,v,q_rad_TS)
-        xlabel('Velocity [km/s]')
-        ylabel('Radiative heat transfer [w/cm^2]')
+        xlabel('Velocity (km/s)')
+        ylabel('Radiative heat transfer (w/cm^2)')
         grid on;grid minor
         
         ax2 = subplot(2,2,2);
         plot(ax2,h*1e-3,T_w)
-        xlabel('Altitude [km] ')
-        ylabel('Wall temperature [k]')
+        xlabel('Altitude (km) ')
+        ylabel('Wall temperature (K)')
         grid on;grid minor
         
         ax3 = subplot(2,2,3);
         plot(ax3,v,T_w)
         xlabel('Velocity [km/s]')
-        ylabel('Wall temperature [k]')
+        ylabel('Wall temperature (K)')
         grid on;grid minor
         
         ax4 = subplot(2,2,4);
         plot(ax4,h*1e-3,q_rad_TS)
-        xlabel('Altitude [km]')
-        ylabel('Radiative heat transfer [w/cm^2]')
+        xlabel('Altitude (km)')
+        ylabel('Radiative heat transfer (w/cm^2)')
         grid on;grid minor
         
 end

@@ -19,17 +19,17 @@ toc
 
 % Plotting  of results
 
-figure(8)
+figure(9)
         ax1 = subplot(1,2,1);
         plot(ax1,v,q_cond)
-        xlabel('Velocity [km/s]')
-        ylabel('Convectie heat transfer [w/cm^2]')
+        xlabel('Velocity (km/s)')
+        ylabel('Convectie heat transfer (w/cm^2)')
         grid on;grid minor
         
         ax2 = subplot(1,2,2);
         plot(ax2,h*1e-3,q_cond)
-        xlabel('Altitude [km] ')
-        ylabel('Convective heat transfer [w/cm^2]')
+        xlabel('Altitude (km) ')
+        ylabel('Convective heat transfer (w/cm^2)')
         grid on;grid minor
         
        

@@ -1,17 +1,20 @@
-function [t, y] = integrator(y0,time,par)
+function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
+
+% Inizialize variables for the control of the bank angle
 
     memOldVel = [];
     initialBank = 60; % [°]
+    bank = initialBank;
     memOldBank = initialBank;
-    dBank_S0 = 5; % [°]
-    dBank_S1 = 5; % [°]
-    S = 0;
+    dBank_S0 = -3; % [°] -3
+    dBank_S1 = +4; % [°]+3.2
     eventCount8021_S0 = 0;
     eventCount8021_S1 = 0;
     
     collectortime = [];
     collectorBank = [];
-
+ 
+% System od ODEs
     function dydt = Mechanicalsystm(t,y,par)
             
             v = y(1);
@@ -24,58 +27,15 @@ function [t, y] = integrator(y0,time,par)
             rho = varrho(h);
             
             [Me,Ne] = MeNe(lat,par);
-            
-            if h >= 80
-                bank = initialBank;
-            elseif h>21 && h<80
-                if isempty(memOldVel)
-                       memOldVel = v;
-                       bank = initialBank;
-                elseif abs(memOldVel - v) >= 0.2
-                       memOldVel = v;
-
-                        if v <= 4.25
-                            eventCount8021_S0 = 0;
-                            eventCount8021_S1 = eventCount8021_S1 + 1;
-
-                            tempDBank = 0;
-                            for i = 1:eventCount8021_S1
-                               tempDBank = tempDBank + dBank_S1;
-                            end
-
-                            S = 1;
-                        else
-                            eventCount8021_S1 = 0;
-                            eventCount8021_S0 = eventCount8021_S0 + 1;
-
-                            tempDBank = 0;
-                            for i = 1:eventCount8021_S0
-                               tempDBank = tempDBank + dBank_S0;
-                            end
-
-                            S = 0;
-                        end
-            
-                    bank = (1-2*S)*(memOldBank+tempDBank);
-
-                    memOldBank = bank;
-                else
-                    bank = memOldBank;
-                end
-        
-            elseif h<=21
-                bank = memOldBank;
-            end
-            
 
             dydt = zeros(6,1);
             
-            dydt(1,1) = -((rho*par.g)/(2*par.beta))*v^2 - par.g*sind(gamma);
-            dydt(2,1) = ((rho*par.g)/(2*par.beta))*par.eff*v*cosd(bank) + cosd(gamma)*(- (par.g/(v)) + v/(par.Re+ h));
+            dydt(1,1) = -(rho/(2*par.beta))*v^2 - par.g*sind(gamma);
+            dydt(2,1) = (((rho/(2*par.alpha))*v*cosd(bank) + cosd(gamma) * (v/(par.Re+h) - par.g/v)))*180/pi;
             dydt(3,1) = v*sind(gamma);
-            dydt(4,1) = v*cosd(gamma)*cosd(hea)/(Ne+ h);
-            dydt(5,1) = v*cosd(gamma)*sind(hea)/((Me+ h)*cosd(lat));
-            dydt(6,1) = (((rho*par.g)/(2*par.beta))*par.eff*v*sind(bank)/cosd(gamma)) + (v/(par.Re+ h))*cosd(gamma)*cosd(hea)*tand(lat);
+            dydt(4,1) = (v*cosd(gamma)*cosd(hea)/(Me + h))*180/pi;
+            dydt(5,1) = (v*cosd(gamma)*sind(hea)/((Ne + h)*cosd(lat)))*180/pi;
+            dydt(6,1) = -(((rho/(2*par.alpha)))*v*sind(bank)/cosd(gamma) + ((v/(par.Re+h)))*cosd(gamma)*sind(hea)*tand(lat))*180/pi;
             
  end
 
@@ -85,24 +45,66 @@ function [t, y] = integrator(y0,time,par)
         
     function status = myOutputFcn(t,y,flag,par)
         
-        switch flag
+        switch flag    %No control
             case 'init'
                 v = y(1);
                 gamma = y(2);
                 h = y(3);
                 lat = y(4);
-                %long = y(5);
+                long = y(5);
                 hea = y(6);
                 
                 collectortime = [collectortime;t(1)];
                 collectorBank = [collectorBank;initialBank];
-            case []
+            case []    %Control case
                 v = y(1);
                 gamma = y(2);
                 h = y(3);
                 lat = y(4);
-                %long = y(5);
+                long = y(5);
                 hea = y(6);
+                
+                if h >= 80
+                    bank = initialBank;
+                elseif h>21 && h<80
+                    if isempty(memOldVel)
+                           memOldVel = v;
+                    elseif abs(memOldVel - v) >= 0.2
+                           memOldVel = v;
+
+                            if v <= 4.25
+                                eventCount8021_S0 = 0;
+                                eventCount8021_S1 = eventCount8021_S1 + 1;
+
+                                tempDBank = 0;
+                                for i = 1:eventCount8021_S1
+                                   tempDBank = tempDBank + dBank_S1;
+                                end
+
+                                S = 1;
+                            else
+                                eventCount8021_S1 = 0;
+                                eventCount8021_S0 = eventCount8021_S0 + 1;
+
+                                tempDBank = 0;
+                                for i = 1:eventCount8021_S0
+                                   tempDBank = tempDBank + dBank_S0;
+                                end
+
+                                S = 0;
+                            end
+
+                        bank = (1-2*S)*(memOldBank+tempDBank);
+
+                        
+                        memOldBank = bank;
+                    else
+                        bank = memOldBank;
+                    end
+
+                elseif h<=21
+                    bank = memOldBank;
+                end
                 
                 collectortime = [collectortime;t(end)];
                 collectorBank = [collectorBank;memOldBank];
@@ -149,12 +151,11 @@ function [t, y] = integrator(y0,time,par)
 %                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
 %                  'Refine',25);
 
-options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','Stats','on',...
+options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormControl','on','Stats','on',...
                  'Events',@h_event);
 % options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
 %                  @odeplot,'OutputSel',[1 2 3 4 5 6],'Stats','on','InitialStep',1e-05,...
 %                  'MStateDependence','strong','MvPattern','S');
-figure(1)
 [t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
 % figure(2)
 % [t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
@@ -165,92 +166,86 @@ figure(1)
 % [t5,y5]= ode23s(@Mechanicalsystm,time,y0,options15s,par);
 
 
-
-%Number of function evaluations
-
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol1.y,2), sol1.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol2.y,2), sol2.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(sol3.y,2), sol3.stats.nfevals) ;
-%fprintf('No. points = %d, \t fcount = %d \n', size(sol4.y,2), sol4.stats.nfevals) ;
-
 t = t1;y = y1;
 % t = t2;y = y2;
 % t = t3;y = y3;
-%  t = t4;y = y4;
+% t = t4;y = y4;
+
+%Number of function evaluations
+
+% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), y1.stats.nfevals) ;
+% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), y1.stats.nfevals) ;
+% fprintf('No. points = %d, \t fcount = %d \n', size,2), sol3.stats.nfevals) ;
+% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), sol4.stats.nfevals) ;
+
 
 [Me,Ne] = MeNe(y(:,4),par);
 rho = varrho (y(:,3));
-
-% Flight envelope
-% 1)Equilibrium trajectory: lift ceiling
-
-
-
-    
-    
+averBank = mean(collectorBank);
 
 
 % Plotting of the results
 
-    figure(3)
+    figure(1)
         
         plot(y(:,4),Me./par.Re,y(:,4),Ne./par.Re,'LineWidth',2)
         legend('percentage variation of the meridian radius of curvature ME',...
             'percenage variation of the prime vertical radius of curvature NE')
-        xlabel('Latitude [°]');ylabel('Me/Rearth, Ne/Rearth')
+        xlabel('Latitude (°)');ylabel('Me/Rearth, Ne/Rearth')
         grid on
         grid minor
+        hold on
     
-    figure(4)
+    figure(2)
     
         ax1 = subplot(2,3,1);
         plot(ax1,t,y(:,1))
         title('Velocity')
-        grid on;grid minor
+        grid on;grid minor;hold on
         
         ax2 = subplot(2,3,2);
         plot(ax2,t,y(:,2))
         title('Flight path angle')
-        grid on;grid minor
+        grid on;grid minor;hold on
         
         ax3 = subplot(2,3,3);
         plot(ax3,t,y(:,3))
         title('Altitude')
-        grid on;grid minor
+        grid on;grid minor;hold on
         
         ax4 = subplot(2,3,4);
         plot(ax4,t,y(:,4))
         title('Latitude')
-        grid on;grid minor
+        grid on;grid minor;hold on
         
         ax5 = subplot(2,3,5);
         plot(ax5,t,y(:,5))
         title('Longitude')
-        grid on;grid minor
+        grid on;grid minor;hold on
         
         ax6 = subplot(2,3,6);
         plot(ax6,t,y(:,6))
         title('Heading angle')
-        grid on;grid minor
+        grid on;grid minor;hold on
       
-    figure (5)  
+    figure (3)  
         plot(rho,y(:,3))
         title('Vehicle deceleration and atmospheric density')
-        xlabel('Density [kg/km^3]')
-        ylabel('Altitude [km]')
-        grid on; grid minor
+        xlabel('Density (kg/km^3)')
+        ylabel('Altitude (km)')
+        grid on;grid minor;hold on
         
-    figure (6)
+    figure (4)
         
         plot(t,rho/1e9)
-        title('Variation of density in time [kg/m^3]')
-        grid on
+        title('Variation of density in time (kg/m^3)')
+        grid on;hold on
         
-    figure (7)
+    figure (5)
         
         plot(collectortime,collectorBank)
         title('Variation of bank angle in time')
-        grid on; grid minor
+        grid on; grid minor; hold on
         
 
  %Save data
