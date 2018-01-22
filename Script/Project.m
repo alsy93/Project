@@ -40,7 +40,7 @@ g = 9.81e-3;            %Gravity acceleration [km/s^2]
 om = 2*pi*Re*1e3/(24*3600); %Velocity of Earth rotation [rad/s]
 
 h_0 =99.5;              %Altitude at starting point [km]
-h_f = 10.8;             %Altitude in which modelling finish and parachute will opened [km]
+h_f = 10.7;             %Altitude in which modelling finish and parachute will opened [km]
 v_0 = 7.618;            %Initial velocity magnitude [km/s]
 v_f = 0.218;            %Final velocity magnitude [km/s]
 beta = (m/(c_d*A_ref)); %Ballistic coefficient ratio [kg/(km^2)]
@@ -52,7 +52,7 @@ lat_0 = 34.06; %Initial latitude [°]
 lat_f = 47.19; %Final latitude [°]
 long_0 = 45.26;%Initial longitude [°]
 long_f = 69.34;%Final longitude [°]
-hea_0 = 40;    %Initial heading angle [°]
+hea_0 = 45;    %Initial heading angle [°]
 hea_f = 62.80; %Final heading angle [°]
 
 % Define the starting point of simulation: is 3 hours after undocking[y m d h m s]
@@ -119,9 +119,6 @@ lat = y(:,4);
 long = y(:,5);
 
 
-%% Flight envelope
-
-flightEnvelope(h,v,par);
 
 %% Solve thermal part
 
@@ -154,6 +151,10 @@ hea = y(:,6);               %heading angle
 % [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
 
 [vargout] = groundtrack(long,lat);
+%% Flight envelope
+
+flightEnvelope(h,v,T_w,par,parT);
+
 
 
 

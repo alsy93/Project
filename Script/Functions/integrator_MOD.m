@@ -7,9 +7,10 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
     bank = initialBank;
     memOldBank = initialBank;
     dBank_S0 = -3; % [°] -3
-    dBank_S1 = +4; % [°]+3.2
+    dBank_S1 = -4; % [°]+3.2
     eventCount8021_S0 = 0;
     eventCount8021_S1 = 0;
+    tempDBank = 0;
     
     collectortime = [];
     collectorBank = [];
@@ -37,7 +38,7 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
             dydt(5,1) = (v*cosd(gamma)*sind(hea)/((Ne + h)*cosd(lat)))*180/pi;
             dydt(6,1) = -(((rho/(2*par.alpha)))*v*sind(bank)/cosd(gamma) + ((v/(par.Re+h)))*cosd(gamma)*sind(hea)*tand(lat))*180/pi;
             
- end
+    end
 
     
 
@@ -48,54 +49,61 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
         switch flag    %No control
             case 'init'
                 v = y(1);
-                gamma = y(2);
                 h = y(3);
-                lat = y(4);
-                long = y(5);
-                hea = y(6);
                 
                 collectortime = [collectortime;t(1)];
                 collectorBank = [collectorBank;initialBank];
             case []    %Control case
                 v = y(1);
-                gamma = y(2);
                 h = y(3);
-                lat = y(4);
-                long = y(5);
-                hea = y(6);
                 
                 if h >= 80
                     bank = initialBank;
                 elseif h>21 && h<80
                     if isempty(memOldVel)
                            memOldVel = v;
-                    elseif abs(memOldVel - v) >= 0.2
+                    elseif abs(memOldVel - v) >= 0.2 && abs(memOldVel - v) <= 0.3
                            memOldVel = v;
 
-                            if v <= 4.25
+                        
+                            if v <= 4.251 && v >=4.05
+                              
                                 eventCount8021_S0 = 0;
                                 eventCount8021_S1 = eventCount8021_S1 + 1;
 
-                                tempDBank = 0;
+                                
                                 for i = 1:eventCount8021_S1
-                                   tempDBank = tempDBank + dBank_S1;
+                                   tempDBank =  dBank_S1;
                                 end
 
                                 S = 1;
+                            elseif v < 4.05
+                                
+                                eventCount8021_S0 = 0;
+                                eventCount8021_S1 = eventCount8021_S1 + 1;
+
+                                
+                                for i = 1:eventCount8021_S1
+                                   tempDBank =  dBank_S1;
+                                end
+                                
+                                tempDBank =  dBank_S1;
+                                
+                                S = 0;
                             else
                                 eventCount8021_S1 = 0;
                                 eventCount8021_S0 = eventCount8021_S0 + 1;
 
-                                tempDBank = 0;
+                                
                                 for i = 1:eventCount8021_S0
-                                   tempDBank = tempDBank + dBank_S0;
+                                   tempDBank =  dBank_S0;
                                 end
 
                                 S = 0;
                             end
 
-                        bank = (1-2*S)*(memOldBank+tempDBank);
-
+                        
+                        bank = (1 - 2*S)*(bank + tempDBank);
                         
                         memOldBank = bank;
                     else
@@ -243,7 +251,7 @@ averBank = mean(collectorBank);
         
     figure (5)
         
-        plot(collectortime,collectorBank)
+        plot(collectortime,collectorBank,collectortime,averBank)
         title('Variation of bank angle in time')
         grid on; grid minor; hold on
         

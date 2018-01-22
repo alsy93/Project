@@ -13,8 +13,8 @@ tic
            
         end
     end
-rho = varrho(h).*1e9;                         %UM: [kg/km^3]
-q_cond = parT.Ks.*(rho./(parT.Rn*1e-5)).^(1/2).*(v.^3);
+rho = varrho(h);
+q_cond = parT.Ks.*(rho./(parT.Rn*)).^(1/2).*((v.*1e3).^3);
 toc
 
 % Plotting  of results
