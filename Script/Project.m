@@ -103,6 +103,10 @@ par.g = g;
 par.Re = Re;
 par.e = e;
 par.om = om;
+par.cl = c_l;
+par.cd = c_d;
+par.S = A_ref;
+par.m = m;
 
 % Solve mechanical part
 
