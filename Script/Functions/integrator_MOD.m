@@ -7,7 +7,7 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
     bank = initialBank;
     memOldBank = initialBank;
     dBank_S0 = -3; % [°] -3
-    dBank_S1 = -4; % [°]+3.2
+    dBank_S1 = +5; % [°]-4
     eventCount8021_S0 = 0;
     eventCount8021_S1 = 0;
     tempDBank = 0;
@@ -135,7 +135,7 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
               rho = rho*1e9;                     %UM: [kg/km^3]
         else
             h = h*1e3;
-            [~, rho] = atmosisa(h);         %UM: [kg/m^3]
+            [~, ~, ~, rho] = atmosisa(h);         %UM: [kg/m^3]
             rho = rho*1e9;                      %UM: [kg/km^3]
         end
     end
@@ -194,17 +194,17 @@ averBank = mean(collectorBank);
 
 % Plotting of the results
 
-    figure(1)
+    figure()
         
         plot(y(:,4),Me./par.Re,y(:,4),Ne./par.Re,'LineWidth',2)
         legend('percentage variation of the meridian radius of curvature ME',...
             'percenage variation of the prime vertical radius of curvature NE')
-        xlabel('Latitude (°)');ylabel('Me/Rearth, Ne/Rearth')
+        xlabel('Latitude $[grad]$');ylabel('Me/Rearth, Ne/Rearth')
         grid on
         grid minor
         hold on
     
-    figure(2)
+    figure('Name','States as a function of time'); 
     
         ax1 = subplot(2,3,1);
         plot(ax1,t,y(:,1))
@@ -236,20 +236,20 @@ averBank = mean(collectorBank);
         title('Heading angle')
         grid on;grid minor;hold on
       
-    figure (3)  
+    figure ()  
         plot(rho,y(:,3))
         title('Vehicle deceleration and atmospheric density')
-        xlabel('Density (kg/km^3)')
-        ylabel('Altitude (km)')
+        xlabel('Density $[\frac{kg}{km^3}]$')
+        ylabel('Altitude $[km]$')
         grid on;grid minor;hold on
         
-    figure (4)
+    figure ()
         
         plot(t,rho/1e9)
-        title('Variation of density in time (kg/m^3)')
+        title('Variation of density in time $[\frac{kg}{m^3}]$')
         grid on;hold on
         
-    figure (5)
+    figure ()
         
         plot(collectortime,collectorBank,collectortime,averBank)
         title('Variation of bank angle in time')

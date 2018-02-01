@@ -1,7 +1,7 @@
-function q_cond = convective_flux(v,h,parT)
+function q_conv = convective_flux(v,h,parT)
 %Fucntion to calculate the convective heat transfer at the stagnation point
 %by using the Sutton-Graves theory, which is coming from Chapman equation
-tic
+
 % Find corresponding density 
     function rho = varrho(h)
            
@@ -13,24 +13,7 @@ tic
            
         end
     end
-rho = varrho(h).*1e9;                         %UM: [kg/km^3]
-q_cond = parT.Ks.*(rho./(parT.Rn*1e-5)).^(1/2).*(v.^3);
-toc
-
-% Plotting  of results
-
-figure(9)
-        ax1 = subplot(1,2,1);
-        plot(ax1,v,q_cond)
-        xlabel('Velocity (km/s)')
-        ylabel('Convectie heat transfer (w/cm^2)')
-        grid on;grid minor
-        
-        ax2 = subplot(1,2,2);
-        plot(ax2,h*1e-3,q_cond)
-        xlabel('Altitude (km) ')
-        ylabel('Convective heat transfer (w/cm^2)')
-        grid on;grid minor
-        
-       
+rho = varrho(h);
+q_conv = (parT.Ks.*(rho./(parT.Rn*1e-2)).^(1/2).*((v.*1e3).^3)).*1e-4;
+            
 end

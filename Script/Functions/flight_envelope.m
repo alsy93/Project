@@ -1,4 +1,4 @@
-function [vargout] = flightEnvelope(h,v,T_w,par,parT)
+function [vargout] = flight_envelope(h,v,T_w,par,parT)
 
 %Exponentialatmospheric model: rho = rho0*exp(-beta*h) ;
 beta = 835/par.Re;    % [1/km]
@@ -51,38 +51,7 @@ rho0 = 1.225*1e9;       % [kg/km^3]
 rho = varrho(h);
 
     n_tot = 0.5.*rho.*par.S*sqrt(par.cl^2+par.cd^2).*v.^2./(par.m*par.g);
-    n_totmax = max(n_tot);
     h_lfl = -log(n_tot.*par.g.*par.m./(0.5.*rho0.*v.^2.*par.S.*par.cl))./beta;
-    
-
-
-
-
-
-
-
-%     function f_eq = findheq(v,par)
-%      
-%         
-%         f_eq =@(h_eq)  h_eq - 1./(par.g./(v.^2) - rho./(2*par.alpha)) + par.Re;
-%         rho = varrho(h_eq);
-%     end
-
-    %v = v*;
-    %g = g(h)
-%     
-%     nV = length(v);
-%     h_eq = zeros(nV,1);
-%     f_eq =@(h_eq,v)  h_eq - 1./(par.g./(v.^2) - varrho(h_eq)./(2*par.alpha)) + par.Re; 
-%     myOptions = optimoptions('fsolve','Display','off');
-%     for i=1:nV
-%         fprintf(['Run: ',num2str(i),'of ',num2str(nV),'\n']);
-%         tempFun=@(xx) f_eq(xx,v(i));
-%         [h_eq(i),~] = fsolve(tempFun,100,myOptions);
-%     end
-%     
-%     clear tempFun i 
-%     options = optimoptions('fsolve','OutputFcn',@myOutFcn,'Diagnostics','on','Display','iter-detailed');
 
 
 % Plot solutions
@@ -92,13 +61,30 @@ rho = varrho(h);
 
     figure();hold on; grid on; grid minor
     title('System and operational constraints');
-    xlabel('Relative velocity');
-    ylabel('Altitude');
+    xlabel('Relative velocity $[\frac{km}{s}]$');
+    ylabel('Altitude $[km]$');
     legend();
     vargout(1) = plot (v,h,'-b','LineWidth',2,'DisplayName','Computed solution');
     vargout(2) = plot(v,h_eq,'-r','LineWidth',2,'DisplayName','Maximum lift ceiling');
-    vargout(3) = plot(v,h_tl,'-g','LineWidth',2,'DisplayName','Thermal limit flux');
-    vargout(4) = plot(v,h_lfl,'-m','LineWidth',2,'DisplayName','Load factor limit');
+               
+    %The requirement of ablative TPS is highlighted
+    
+    N = length(h);
+    
+    for i = 1:N
+        if h_tl(i) >= h(i)
+            hTPS = h_tl(i);     %Mark when TPS is required
+            vTPS = v(i); 
+        end
+    end
+    
+    indexH = find(h_tl<hTPS,1);
+    indexV = find(v<vTPS,1);
+    
+    vargout(3) = plot(v(1:indexV),h_tl(1:indexH),'--g','LineWidth',2,'DisplayName','Thermal limit flux: ablative TPS is required');
+    vargout(4) = plot(v(indexV:end),h_tl(indexH:end),'-g','LineWidth',2,'DisplayName','Thermal limit flux: reusable TPS is preferable');
+    vargout(5) = plot(vTPS,hTPS,'or','LineWidth',2,'DisplayName','TPS is needed for higher values');
+    vargout(6) = plot(v,h_lfl,'-m','LineWidth',2,'DisplayName','Load factor limit');
 end
 
 

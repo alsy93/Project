@@ -16,6 +16,10 @@ close all;
 % Options settings
 
 set(0,'DefaultFigureWindowStyle','docked');
+set(0,'defaulttextInterpreter','latex');
+set(0,'defaultTextFontSize',10);
+set(0,'DefaultLegendFontSize',5);
+set(0,'defaultAxesFontSize',10);
 addpath(genpath('Functions'))
 
 % Data of the mechanical part
@@ -66,7 +70,8 @@ timezone = +3.00;              %Moscow timezone
 %---------------------------------------------------------------------------------
 %Data of the termical part
 
-Rn = 2.235e2;          %Nose radius of stagnation point [cm]
+A_refT = 3.8;           %Reference area [m^2]
+Rn = 2.235e2;           %Nose radius of stagnation point [cm]
 emiss = 0.85;           %Emissivity coefficient
 cd = 1.4;               %Conductive coefficient [W/(mK)]
 sigma = 5.670373e-8;    %Stefan-Boltzmann constant [W/(m^2*K^4)]
@@ -112,20 +117,22 @@ par.m = m;
 
 tic
 [t, y, bank, TimeBank] = integrator_MOD(y0,time,par);
-inte_time = toc;
+integrator_time = toc;
 
 %Convert km in m
 
 v = y(:,1);
+gamma = y(:,2);             %flight path angle which corresponds to the pitch angle
 h = y(:,3);
 h_m = h.*1e3;
 lat = y(:,4);
 long = y(:,5);
+hea = y(:,6);               %heading angle
 
 
 
 %% Solve thermal part
-
+clc
 parT.Rn = Rn;
 parT.emiss = emiss;
 parT.sigma = sigma;
@@ -136,28 +143,19 @@ parT.b = b;
 parT.C = C;
 parT.d = d;
 parT.Ks = Ks;
-parT.A_ref = A_ref;
+parT.A_ref = A_refT;
 
-[T_w, q_rad_TS] = wall_temperature(v,h_m,parT);
 q_conv = convective_flux(v,h_m,parT);
+[T_w, q_rad_TS] = wall_temperature(v,h_m,q_conv,t,parT);
+[T_abl,x] = thermal_shield(h,v,T_w, q_rad_TS,q_conv,parT,t);
 
-%% Ground track
-
-gamma = y(:,2);             %flight path angle which corresponds to the pitch angle
-hea = y(:,6);               %heading angle
-
-
-% [r_NED,v_NED,v_body] = body2NED(h,v,-hea,-gamma,bank,par);
-% 
-% [r_ECEF,v_ECEF]=ned2ecef(r_NED,v_NED,lat,long,h,par);
-% 
-% UTC_TIME = UTC_t_0 + t;   %Time in wich simulation starts
-% [r_ECI,v_ECI]=ecef2eci(r_ECEF,v_ECEF,UTC_TIME');
-
-[vargout] = groundtrack(long,lat);
 %% Flight envelope
 
-flightEnvelope(h,v,T_w,par,parT);
+flight_envelope(h,v,T_w,par,parT);
+%% Ground track
+
+ground_track(long,lat);
+
 
 
 

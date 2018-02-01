@@ -155,11 +155,7 @@ figure()
         grid on;grid minor;
 
         ax2 = subplot(2,1,2);legend('Location','SE'); hold on; 
-        plot(ax2,t,x,'LineWidth',2,'DisplayName','Thickness variation in time')
-        xlabel('Time $[s]$')
-        ylabel('Variation of thicnkess of TPS $[m]$')
-        grid on;grid minor;
-
+        plot(ax2,t,x,'LineWidth',2,'DisplayName'
 
         %plot(ax1,v,q_conv,'-r','LineWidth',2,'DisplayName','Convectie heat transfer')
 %         ax = gca;
