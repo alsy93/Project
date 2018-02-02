@@ -28,7 +28,7 @@ addpath(genpath('Functions'))
 m = 2.9e3;          %Mass [kg]
 l = 2.1e-3;         %Length [km]
 d = 2.2e-3;         %Diameter [km]
-Vol = 9e-9;         %Volume [km^3]
+Vol = 4;            %Volume [m^3]
 A_ref = 3.8e-6;     %Reference area [km^2]
 
 %Aerodynamic data
@@ -144,10 +144,17 @@ parT.C = C;
 parT.d = d;
 parT.Ks = Ks;
 parT.A_ref = A_refT;
+parT.Vol = Vol;
 
 q_conv = convective_flux(v,h_m,parT);
 [T_w, q_rad_TS] = wall_temperature(v,h_m,q_conv,t,parT);
-[T_abl,x] = thermal_shield(h,v,T_w, q_rad_TS,q_conv,parT,t);
+
+% Change dimension of convective and radiative flux
+
+q_rad_TS = q_rad_TS.*1e4;   %[W/m^2]
+q_conv = q_conv.*1e4;       %[W/m^2]
+
+[T_cab,x] = thermal_shield(h,v,T_w,q_rad_TS,q_conv,parT,t);
 
 %% Flight envelope
 

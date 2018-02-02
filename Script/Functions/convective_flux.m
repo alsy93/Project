@@ -14,6 +14,6 @@ function q_conv = convective_flux(v,h,parT)
         end
     end
 rho = varrho(h);
-q_conv = (parT.Ks.*(rho./(parT.Rn*1e-2)).^(1/2).*((v.*1e3).^3)).*1e-4;
+q_conv = (parT.Ks.*(rho./(parT.Rn*1e-2)).^(1/2).*((v.*1e3).^3)).*1e-4; % [W/cm^2]
             
 end

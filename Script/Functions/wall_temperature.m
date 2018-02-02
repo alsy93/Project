@@ -16,10 +16,10 @@ function [T_w, q_rad_TS] = wall_temperature(v,h,q_conv,t,parT)
            
         end
     end
-rho = varrho(h);%.*1e9;
+rho = varrho(h);
 
 % Start finding corresponding wall temperature 
-q_rad_TS = (((parT.Rn*1e-2)^parT.a) .* (rho.^parT.b) .*(v.^(parT.d)));
+q_rad_TS = (((parT.Rn*1e-2)^parT.a) .* (rho.^parT.b) .*(v.^(parT.d))); %[W/cm^2]
 q_rerad = (q_conv + q_rad_TS).*1e4;                            
 T_w = (q_rerad ./ (parT.sigma * parT.emiss)).^(1/4);
 
