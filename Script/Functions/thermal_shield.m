@@ -1,5 +1,6 @@
 function [T_cab,x] = thermal_shield(h,v,T_w,q_rad_TS,q_conv,parT,t)
 
+%Note that q_rad_Ts and q_conv should be in W/m^2
 
 %Soyuz TPS characteristics 
 
@@ -14,9 +15,9 @@ alpha = 0.9;                % Solar absorptivity of TPS
 
 % VIM low density insulator
 th_ins = 0.008;                         % insulator thickness after TPS
-k_ins = 0.15;                            % Thermal conductivity [W/mK]
+k_ins = 0.15;                           % Thermal conductivity [W/mK]
 Rcond_ins = th_ins/(parT.A_ref*k_ins);  % Conductive resistance of insulator
-rho_ins = 150;                          % Density [kg/m^3]
+rho_ins = 207;                          % Density [kg/m^3]
 Cp_ins = 1590;                          % Specific heat [J/kgK]
 lm_ins = rho_ins*parT.A_ref*th_ins*Cp_ins;
 

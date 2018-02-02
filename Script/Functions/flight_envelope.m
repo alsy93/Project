@@ -61,7 +61,7 @@ rho = varrho(h);
 
 
 
-    figure();hold on; grid on; grid minor
+    figure('Name','Flight envelope');hold on; grid on; grid minor
     title('System and operational constraints');
     xlabel('Relative velocity $[\frac{km}{s}]$');
     ylabel('Altitude $[km]$');

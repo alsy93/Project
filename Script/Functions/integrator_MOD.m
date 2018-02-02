@@ -43,29 +43,24 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
 %                                                       control
 
 %Check inputs
-if nargin ~= 4
+if nargin ~= 3
     error('Incorrect number of inputs.  See help ecef2enu_12.')
 end
-if size(v_sim,2) ~= 1
+if size(y0,1) ~= 1
       error('Check the help of this function')
 end
-if size(hea,2) ~= 1
+if size(y0,2) ~= 6
       error('Check the help of this function')
 end
-if size(pitch,2) ~= 1
+if size(time,1) ~= 1
       error('Check the help of this function')
 end
-if size(bank,2) ~= 1
+if size(time,2) ~= 2
       error('Check the help of this function')
 end
 
-%Checking to see if length of ECEF matrix is the same as the length of the time vector
-N = size(v_sim,1);
-if N ~= length(hea) || N ~= length(pitch) || N ~= length(bank)
-    error('Column size of velocity body vector not equal to size of heading, pitching and banking vectors. Check inputs.')
-end
 
-
+tic
 % Inizialize variables for the control of the bank angle
 
     memOldVel = [];
@@ -202,7 +197,7 @@ end
         else
             h = h*1e3;
             [~, ~, ~, rho] = atmosisa(h);         %UM: [kg/m^3]
-            rho = rho*1e9;                      %UM: [kg/km^3]
+            rho = rho*1e9;                        %UM: [kg/km^3]
         end
     end
    
@@ -215,6 +210,7 @@ end
 
 % Set options and start modeling simulation
 
+disp('ODE45 evaluations');
 
 options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormControl','on','Stats','on',...
                  'Events',@h_event);
@@ -223,15 +219,18 @@ options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormCon
 
 t = t1;y = y1;
 
+RunTime_integrator_MOD = toc;
+fprintf('Run time of integration is %d.\n',RunTime_integrator_MOD);
+
 
 [Me,Ne] = MeNe(y(:,4),par);
 rho = varrho (y(:,3));
-averBank = mean(collectorBank);
+
 
 
 % Plotting of the results
 
-    figure('Name','States as a function of time')
+    figure('Name','Me and Ne')
         
         plot(y(:,4),Me./par.Re,y(:,4),Ne./par.Re,'LineWidth',2)
         legend('percentage variation of the meridian radius of curvature ME',...
@@ -244,37 +243,43 @@ averBank = mean(collectorBank);
     figure('Name','States as a function of time'); 
     
         ax1 = subplot(2,3,1);
-        plot(ax1,t,y(:,1))
-        title('Velocity')
+        plot(ax1,t,y(:,1),'LineWidth',2)
+        title('Velocity $[\frac{kg}{km^3}]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
         
         ax2 = subplot(2,3,2);
-        plot(ax2,t,y(:,2))
-        title('Flight path angle')
+        plot(ax2,t,y(:,2),'LineWidth',2)
+        title('Flight path angle $[grad]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
         
         ax3 = subplot(2,3,3);
-        plot(ax3,t,y(:,3))
-        title('Altitude')
+        plot(ax3,t,y(:,3),'LineWidth',2)
+        title('Altitude $[km]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
         
         ax4 = subplot(2,3,4);
-        plot(ax4,t,y(:,4))
-        title('Latitude')
+        plot(ax4,t,y(:,4),'LineWidth',2)
+        title('Latitude $[grad]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
         
         ax5 = subplot(2,3,5);
-        plot(ax5,t,y(:,5))
-        title('Longitude')
+        plot(ax5,t,y(:,5),'LineWidth',2)
+        title('Longitude $[grad]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
         
         ax6 = subplot(2,3,6);
-        plot(ax6,t,y(:,6))
-        title('Heading angle')
+        plot(ax6,t,y(:,6),'LineWidth',2)
+        title('Heading angle $[grad]$')
+        xlabel('Time $[s]$');
         grid on;grid minor;hold on
       
     figure ('Name','Density VS Altitude')  
-        plot(rho,y(:,3))
+        plot(rho,y(:,3),'LineWidth',2)
         title('Vehicle deceleration and atmospheric density')
         xlabel('Density $[\frac{kg}{km^3}]$')
         ylabel('Altitude $[km]$')
@@ -282,14 +287,15 @@ averBank = mean(collectorBank);
         
     figure ('Name','Density VS time')
         
-        plot(t,rho/1e9)
+        plot(t,rho/1e9,'LineWidth',2)
         title('Variation of density in time $[\frac{kg}{m^3}]$')
-        grid on;hold on
+        grid on;grid minor;hold on
         
     figure ('Name','Bank angle control')
         
-        plot(collectortime,collectorBank,collectortime,averBank)
-        title('Variation of bank angle in time')
+        plot(collectortime,collectorBank,'LineWidth',2)
+        title('Variation of bank angle in time $[grad]$')
+        xlabel('Time $[s]$');
         grid on; grid minor; hold on
         
 
