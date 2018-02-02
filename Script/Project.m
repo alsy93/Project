@@ -127,7 +127,7 @@ hea = y(:,6);               %heading angle
 
 
 
-% Solve thermal part
+%% Solve thermal part
 parT.Rn = Rn;
 parT.emiss = emiss;
 parT.sigma = sigma;
@@ -206,7 +206,12 @@ flight_envelope_sensitivity(h_075,v_075,T_w_075,h_35,v_35,T_w_35,par,parT);
 
 %% Integrator analysis
 
-[t45,y45,t113,y113,bank45,timebank45,bank113,timebank113] = integrator_MOD_analysis(y0,time,par);
+
+[t45_1, y45_1, bank45,timebank45, t113_1, y113_1] = integrator_MOD_analysis(y0,time,par);
+
+%Find corresponding bank angle for ODE113
+[bank113,timebank113] = integrator_MOD_113_bank(y0,time,par);
+
 
 %By using a Max step of 0.3
 

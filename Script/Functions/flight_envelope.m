@@ -65,7 +65,7 @@ rho = varrho(h);
     title('System and operational constraints');
     xlabel('Relative velocity $[\frac{km}{s}]$');
     ylabel('Altitude $[km]$');
-    legend();
+    legend('Location','SE');
     vargout(1) = plot (v,h,'-b','LineWidth',2,'DisplayName','Computed solution');
     vargout(2) = plot(v,h_eq,'-r','LineWidth',2,'DisplayName','Maximum lift ceiling');
                

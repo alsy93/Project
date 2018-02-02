@@ -160,11 +160,12 @@ ground_track(long,lat);
 
 %% Sensitivity analysis
 % By changing flight path angle
+clc;
 
 %1) gamma = -0.75;
-clc;
-y0.gamma0 = -0.75;
-y0_075 = [y0.v0 y0.gamma0 y0.h0 y0.lat0 y0.long0 y0.hea0];
+
+gamma0075 = -0.75;
+y0_075 = [v_0 gamma0075 h_0 lat_0 long_0 hea_0];
 [t_075, y_075, bank_075, TimeBank_075] = integrator_MOD(y0_075,time,par);
 
 v_075 = y_075(:,1);
@@ -172,40 +173,45 @@ gamma_075 = y_075(:,2);             %flight path angle which corresponds to the 
 h_075 = y_075(:,3);
 h_m_075 = h_075.*1e3;
 lat_075 = y_075(:,4);
-long_075 = y(:,5);
-hea_075 = y(:,6); 
+long_075 = y_075(:,5);
+hea_075 = y_075(:,6); 
 
 q_conv_075 = convective_flux(v_075,h_m_075,parT);
-[T_w_075, q_rad_TS_075] = wall_temperature(v_075,h_m_075,q_conv_075,t,parT);
+[T_w_075, q_rad_TS_075] = wall_temperature(v_075,h_m_075,q_conv_075,t_075,parT);
 
 %1) gamma = -3.5;
-clc;
-y0.gamma0 = -3.5;
-y0_35 = [y0.v0 y0.gamma0 y0.h0 y0.lat0 y0.long0 y0.hea0];
+
+gamma035 = -3.5;
+y0_35 = [v_0 gamma035 h_0 lat_0 long_0 hea_0];
 [t_35, y_35, bank_35, TimeBank_35] = integrator_MOD(y0_35,time,par);
 
-v_35 = y(:,1);
-gamma_35 = y(:,2);             %flight path angle which corresponds to the pitch angle
-h_075 = y(:,3);
-h_m_075 = h.*1e3;
-lat_075 = y(:,4);
-long_075 = y(:,5);
-hea_075 = y(:,6); 
+v_35 = y_35(:,1);
+gamma_35 = y_35(:,2);             %flight path angle which corresponds to the pitch angle
+h_35 = y_35(:,3);
+h_m_35 = h_35.*1e3;
+lat_35 = y_35(:,4);
+long_35 = y_35(:,5);
+hea_35 = y_35(:,6); 
 
-q_conv_075 = convective_flux(v_075,h_m_075,parT);
-[T_w_075, q_rad_TS_075] = wall_temperature(v_075,h_m_075,q_conv_075,t,parT);
-
-
+q_conv_35 = convective_flux(v_35,h_m_35,parT);
+[T_w_35, q_rad_TS_35] = wall_temperature(v_35,h_m_35,q_conv_35,t_35,parT);
 
 
 
 
-flight_envelope(h_075,v_075,T_w_075,par,parT);
+
+
+flight_envelope_sensitivity(h_075,v_075,T_w_075,h_35,v_35,T_w_35,par,parT);
 
 
 %% Integrator analysis
 
-[t45,y45,t113,y113,bank45,timebank45,bank113,timebank113] = integrator_MOD_analysis(y0,time,par);
+
+[t45_1, y45_1, bank45,timebank45, t113_1, y113_1] = integrator_MOD_analysis(y0,time,par);
+
+%Find corresponding bank angle for ODE113
+[bank113,timebank113] = integrator_MOD_113_bank(y0,time,par);
+
 
 %By using a Max step of 0.3
 

@@ -210,6 +210,7 @@ tic
 
 % Set options and start modeling simulation
 
+disp('=====================================================================');
 disp('ODE45 evaluations');
 
 options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormControl','on','Stats','on',...
@@ -220,7 +221,7 @@ options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormCon
 t = t1;y = y1;
 
 RunTime_integrator_MOD = toc;
-fprintf('Run time of integration is %d.\n',RunTime_integrator_MOD);
+fprintf('Run time of integration is %f s.\n',RunTime_integrator_MOD);
 
 
 [Me,Ne] = MeNe(y(:,4),par);

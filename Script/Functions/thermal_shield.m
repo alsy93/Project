@@ -188,15 +188,18 @@ T_insAl = T_nodes(:,6);
 T_AlSt = T_nodes(:,8);
 T_cab = T_nodes(:,10);
 
-
+[T_cabmax, indexTcabinmax] = max(T_cab);
+altitude_Tmax = h(indexTcabinmax);
+fprintf('Altitude for which the temperature inside the cabin is maximum is %f km. \n',altitude_Tmax)
+fprintf('The maximum temperature inside the cabin is %f K.\n',T_cabmax);
 
 %Plot results
 
-figure()
+figure('Name','TPS temperatures')
         ax1 = subplot(2,1,1);legend('Location','NE'); hold on; 
         plot(ax1,t,T_cab,'-b','LineWidth',2,'DisplayName','Temperature inside the cabin')
-        plot(ax1,t,T_abl1,'-r','LineWidth',2,'DisplayName','Temperature inside TPS')
-        plot(ax1,t,T_abl1,'--r','LineWidth',2,'DisplayName','Temperature inside TPS')
+        plot(ax1,t,T_abl1,'-r','LineWidth',2,'DisplayName','Temperature inside TPS at node 2')
+        plot(ax1,t,T_abl2,'--r','LineWidth',2,'DisplayName','Temperature at the end of TPS')
         xlabel('Time $[s]$')
         ylabel('Temperature $[K]$')
         grid on;grid minor;
@@ -207,16 +210,16 @@ figure()
         ylabel('Variation of thicnkess of TPS $[m]$')
         grid on;grid minor;
         
-figure()
+figure('Name','Temperature in thickness')
         
-        totalTK =[0, x(end)/2, x(end), x(end)+th_ins/2, x(end)+th_ins, x(end)+th_ins+th_al/2, x(end)+th_ins+th_al, x(end)+th_ins+th_al+th_steel/2, x(end)+th_ins+th_al+th_steel, x(end)+th_ins+th_al+th_steel+0.5  ]; 
-        A=interp1(totalTK,T_nodes(end,:));
-        plot(A);
-
-
-
-
-
+        totalTK =[0, x(end)/2, x(end), x(end)+th_ins/2, x(end)+th_ins, x(end)+th_ins+th_al/2, x(end)+th_ins+th_al, x(end)+th_ins+th_al+th_steel/2, x(end)+th_ins+th_al+th_steel, x(end)+th_ins+th_al+th_steel ]; 
+        
+        legend('Location','NE'); hold on;
+        plot(totalTK,T_nodes(indexTcabinmax,:),'LineWidth',2,'DisplayName','Temperature variation inside whole thickness');
+        title('Temperature at nodes when in the cabin is max');
+        xlabel('Thickness $[m]$')
+        ylabel('Temperature $[K]$')
+        grid on; grid minor
 
 
 end

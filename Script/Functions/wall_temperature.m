@@ -25,7 +25,7 @@ T_w = (q_rerad ./ (parT.sigma * parT.emiss)).^(1/4);
 
 % Plotting  of results
 
-figure()
+figure('Name','Thermal heat fluxes and Tw')
         ax1 = subplot(2,3,1);legend('Location','NW'); hold on; 
         plot(ax1,v,q_rad_TS,'-b','LineWidth',2,'DisplayName','Radiative heat transfer')
         plot(ax1,v,q_conv,'-r','LineWidth',2,'DisplayName','Convectie heat transfer')
