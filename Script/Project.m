@@ -127,7 +127,7 @@ hea = y(:,6);               %heading angle
 
 
 
-%% Solve thermal part
+% Solve thermal part
 parT.Rn = Rn;
 parT.emiss = emiss;
 parT.sigma = sigma;
@@ -160,11 +160,12 @@ ground_track(long,lat);
 
 %% Sensitivity analysis
 % By changing flight path angle
+clc;
 
 %1) gamma = -0.75;
-clc;
-y0.gamma0 = -0.75;
-y0_075 = [y0.v0 y0.gamma0 y0.h0 y0.lat0 y0.long0 y0.hea0];
+
+gamma0075 = -0.75;
+y0_075 = [v_0 gamma0075 h_0 lat_0 long_0 hea_0];
 [t_075, y_075, bank_075, TimeBank_075] = integrator_MOD(y0_075,time,par);
 
 v_075 = y_075(:,1);
@@ -179,9 +180,9 @@ q_conv_075 = convective_flux(v_075,h_m_075,parT);
 [T_w_075, q_rad_TS_075] = wall_temperature(v_075,h_m_075,q_conv_075,t_075,parT);
 
 %1) gamma = -3.5;
-clc;
-y0.gamma0 = -3.5;
-y0_35 = [y0.v0 y0.gamma0 y0.h0 y0.lat0 y0.long0 y0.hea0];
+
+gamma035 = -3.5;
+y0_35 = [v_0 gamma035 h_0 lat_0 long_0 hea_0];
 [t_35, y_35, bank_35, TimeBank_35] = integrator_MOD(y0_35,time,par);
 
 v_35 = y_35(:,1);
