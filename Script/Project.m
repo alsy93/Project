@@ -151,10 +151,10 @@ q_conv = convective_flux(v,h_m,parT);
 
 % Change dimension of convective and radiative flux
 
-q_rad_TS = q_rad_TS.*1e4;   %[W/m^2]
-q_conv = q_conv.*1e4;       %[W/m^2]
+q_rad_TS_m = q_rad_TS.*1e4;   %[W/m^2]
+q_conv_m = q_conv.*1e4;       %[W/m^2]
 
-[T_cab,x] = thermal_shield(h,v,T_w,q_rad_TS,q_conv,parT,t);
+[T_cab,x] = thermal_shield(h,v,T_w,q_rad_TS_m,q_conv_m,parT,t);
 
 %% Flight envelope
 
@@ -162,6 +162,13 @@ flight_envelope(h,v,T_w,par,parT);
 %% Ground track
 
 ground_track(long,lat);
+
+%% Sensitivity analysis
+
+
+
+%% Integrator analysis
+
 
 
 

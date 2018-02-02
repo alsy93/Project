@@ -1,4 +1,70 @@
 function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
+%This function solve a reentry dynamic problem by considering a spherical
+%coordinate system which pointing the centre of Earth.This is considered as
+%an ellipsoid
+% INPUTs:
+%
+%y0                     [1 x 6]                         Initial values of
+%                                                       states which are
+%                                                       velocity, flight
+%                                                       path angle,
+%                                                       altitude, latitude,
+%                                                       longitude, heading
+%                                                       angle ([km/s] [grad]
+%                                                       [km] [grad] [grad] 
+%                                                       [grad])
+%
+%time                   [1 x 2]                         Initial and final
+%                                                       value of time for
+%                                                       simulation. The
+%                                                       final time should
+%                                                       be when parachute
+%                                                       will be opened ([s]
+%                                                       [s])
+%                                                     
+%
+%par                    [struct]                        Parameters for the
+%                                                       dynamics
+
+% OUTPUTs:
+%
+%y                      [N x 6]                         State matrix 
+%
+%t                      [N x 1]                         Time integration
+%                                                       vector
+%
+%collectorBank          [L x 1]                         Controlled variable
+%                                                       computed every 4
+%                                                       time steps for
+%                                                       ode45
+%
+%collectortime          [L x 1]                         Discrete time
+%                                                       vector for bank
+%                                                       control
+
+%Check inputs
+if nargin ~= 4
+    error('Incorrect number of inputs.  See help ecef2enu_12.')
+end
+if size(v_sim,2) ~= 1
+      error('Check the help of this function')
+end
+if size(hea,2) ~= 1
+      error('Check the help of this function')
+end
+if size(pitch,2) ~= 1
+      error('Check the help of this function')
+end
+if size(bank,2) ~= 1
+      error('Check the help of this function')
+end
+
+%Checking to see if length of ECEF matrix is the same as the length of the time vector
+N = size(v_sim,1);
+if N ~= length(hea) || N ~= length(pitch) || N ~= length(bank)
+    error('Column size of velocity body vector not equal to size of heading, pitching and banking vectors. Check inputs.')
+end
+
 
 % Inizialize variables for the control of the bank angle
 
@@ -147,44 +213,15 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
               Ne = par.Re./sqrt(1-par.e^2.*sin(lat).^2);
     end
 
-% Try different options
+% Set options and start modeling simulation
 
-%options = odeset('OutputFcn',@odeplot);
-%options = odeset('RelTol', 1e-12, 'AbsTol', 1e-12);
-%options =  odeset('RelTol',1e-5,'Stats','on','OutputFcn',@odeplot);
-%options = odeset('RelTol',1e-8,'AbsTol',1e-9,'OutputFcn',@odeplot,'Stats','on');
-% options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-%                @odephas3,'MaxStep',1);
-%options = odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-%                  @odeplot,'OutputSel',[1 2 3 4],'Stats','on','InitialStep',1e-20,...
-%                  'Refine',25);
 
 options = odeset('OutputFcn',@myOutputFcn,'RelTol',1e-13,'AbsTol',1e-13,'NormControl','on','Stats','on',...
                  'Events',@h_event);
-% options15s =  odeset('RelTol',1e-15,'AbsTol',1e-15,'NormControl','on','OutputFcn',...
-%                  @odeplot,'OutputSel',[1 2 3 4 5 6],'Stats','on','InitialStep',1e-05,...
-%                  'MStateDependence','strong','MvPattern','S');
-[t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
-% figure(2)
-% [t2,y2]= ode113(@Mechanicalsystm,time,y0,options,par);
-% figure(3)
-% [t3,y3]= ode15s(@Mechanicalsystm,time,y0,options15s,par);
-% figure(4)
-% [t4,y4]= ode23tb(@Mechanicalsystm,time,y0,options15s,par);
-% [t5,y5]= ode23s(@Mechanicalsystm,time,y0,options15s,par);
 
+[t1,y1]= ode45(@Mechanicalsystm,time,y0,options,par);
 
 t = t1;y = y1;
-% t = t2;y = y2;
-% t = t3;y = y3;
-% t = t4;y = y4;
-
-%Number of function evaluations
-
-% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), y1.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), y1.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size,2), sol3.stats.nfevals) ;
-% fprintf('No. points = %d, \t fcount = %d \n', size(y,2), sol4.stats.nfevals) ;
 
 
 [Me,Ne] = MeNe(y(:,4),par);
@@ -194,7 +231,7 @@ averBank = mean(collectorBank);
 
 % Plotting of the results
 
-    figure()
+    figure('Name','States as a function of time')
         
         plot(y(:,4),Me./par.Re,y(:,4),Ne./par.Re,'LineWidth',2)
         legend('percentage variation of the meridian radius of curvature ME',...
@@ -236,27 +273,24 @@ averBank = mean(collectorBank);
         title('Heading angle')
         grid on;grid minor;hold on
       
-    figure ()  
+    figure ('Name','Density VS Altitude')  
         plot(rho,y(:,3))
         title('Vehicle deceleration and atmospheric density')
         xlabel('Density $[\frac{kg}{km^3}]$')
         ylabel('Altitude $[km]$')
         grid on;grid minor;hold on
         
-    figure ()
+    figure ('Name','Density VS time')
         
         plot(t,rho/1e9)
         title('Variation of density in time $[\frac{kg}{m^3}]$')
         grid on;hold on
         
-    figure ()
+    figure ('Name','Bank angle control')
         
         plot(collectortime,collectorBank,collectortime,averBank)
         title('Variation of bank angle in time')
         grid on; grid minor; hold on
         
 
- %Save data
- 
- save('y')
 end

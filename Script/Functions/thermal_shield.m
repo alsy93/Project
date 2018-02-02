@@ -5,10 +5,9 @@ function [T_cab,x] = thermal_shield(h,v,T_w,q_rad_TS,q_conv,parT,t)
 
 % Ablative aeroshell
 th_abl = 0.028;             % ablation shield thickness: is the X total [m]
-qabl_lim = 10000/(1e-4);    % Limit heat flux of aeroshell [W/m^2]
-T_m = 800;                  % Melting temperature ablative shield [K]
+T_m = 755;                  % Melting temperature ablative shield [K]
 rho_abl = 1450;             % Density of the ablation material [kg/m^3]
-ql_fus = 29600*1e3;         % Latent heat of fusion (ablative material) [J/kg]
+ql_fus =29600*1e3;          % Latent heat of fusion (ablative material) [J/kg]
 k_abl = 0.37;               % Thermal conductivity [W/mK]
 Cp = 1256.04;               % Specific heat [J/kgK]
 alpha = 0.9;                % Solar absorptivity of TPS
@@ -72,6 +71,9 @@ lm_cab = rho_air*parT.Vol*Cp_air;
  deltaX = zeros(L,1);
  x = zeros(L,1);
  x(1) = th_abl;
+ 
+ R_abl = zeros(L,1);
+ Rc_ablis = zeros(L,1);
 
 % Contact resistance
 
@@ -110,11 +112,10 @@ Rc_StCab = (Rcond_steel + Rconv_cab)/4;
  % In the node #2
  Rc_ablis(i) = (R_abl(i) + Rcond_ins/2) /2;
  T_nodes(i,2) = T_nodes(i-1,2) + deltat(i)/(lm_abl) * ((T_w(i-1) - T_nodes(i-1,2))/R_abl(i) - (T_nodes(i-1,2) - T_nodes(i-1,3))/(R_abl(i) + Rc_ablis(i)) - s(i-1)*rho_abl*ql_fus );
- rateo(i) = s(i-1)*rho_abl*ql_fus*parT.A_ref;
  
  % In the node #3
 
- T_nodes(i,3) = T_nodes(i-1,3) + 2*deltat(i)/(lm_abl) * ((T_nodes(i-1,2) - T_nodes(i-1,3))/(R_abl(i) + Rc_ablis(i)) - (T_nodes(i-1,3) - T_nodes(i-1,4))/(Rc_ablis(i) + Rcond_ins/2) );
+ T_nodes(i,3) = T_nodes(i-1,3) + 2*deltat(i)/(lm_abl +lm_ins) * ((T_nodes(i-1,2) - T_nodes(i-1,3))/(R_abl(i) + Rc_ablis(i)) - (T_nodes(i-1,3) - T_nodes(i-1,4))/(Rc_ablis(i) + Rcond_ins/2) );
  
  %INSULATOR
  
@@ -122,19 +123,19 @@ Rc_StCab = (Rcond_steel + Rconv_cab)/4;
  T_nodes(i,4) = T_nodes(i-1,4) + deltat(i)/(lm_ins) * ((T_nodes(i-1,3) - T_nodes(i-1,4))/(Rc_ablis(i) + Rcond_ins/2) - (T_nodes(i-1,4) - T_nodes(i-1,5))/(Rcond_ins/2 + Rc_insAl) );
  
  % In the node #5
- T_nodes(i,5) = T_nodes(i-1,5) + 2*deltat(i)/(lm_ins) * ((T_nodes(i-1,4) - T_nodes(i-1,5))/(Rcond_ins/2 + Rc_insAl) - (T_nodes(i-1,5) - T_nodes(i-1,6))/(Rcond_ins/2 + Rc_insAl) );
+ T_nodes(i,5) = T_nodes(i-1,5) + 2*deltat(i)/(lm_ins + lm_al) * ((T_nodes(i-1,4) - T_nodes(i-1,5))/(Rcond_ins/2 + Rc_insAl) - (T_nodes(i-1,5) - T_nodes(i-1,6))/(Rcond_ins/2 + Rc_insAl) );
  
  %Al_mg ALLOY
  
  T_nodes(i,6) = T_nodes(i-1,6) + deltat(i)/(lm_al) * ((T_nodes(i-1,5) - T_nodes(i-1,6))/(Rcond_ins/2 + Rc_insAl) - (T_nodes(i-1,6) - T_nodes(i-1,7))/(Rcond_al/2 + Rc_AlSt));
 
  
- T_nodes(i,7) = T_nodes(i-1,7) + 2*deltat(i)/(lm_al) * ((T_nodes(i-1,6) - T_nodes(i-1,7))/(Rcond_al/2 + Rc_AlSt) - (T_nodes(i-1,7) - T_nodes(i-1,8))/(Rc_AlSt + Rcond_steel/2) );
+ T_nodes(i,7) = T_nodes(i-1,7) + 2*deltat(i)/(lm_al + lm_steel) * ((T_nodes(i-1,6) - T_nodes(i-1,7))/(Rcond_al/2 + Rc_AlSt) - (T_nodes(i-1,7) - T_nodes(i-1,8))/(Rc_AlSt + Rcond_steel/2) );
     
  % STEEL 
  T_nodes(i,8) = T_nodes(i-1,8) + deltat(i)/(lm_steel) * ((T_nodes(i-1,7) - T_nodes(i-1,8))/(Rc_AlSt + Rcond_steel/2) - (T_nodes(i-1,8) - T_nodes(i-1,9))/(Rcond_steel/2 + Rc_StCab) );  
  
- T_nodes(i,9) = T_nodes(i-1,9) + 2*deltat(i)/(lm_steel) * ((T_nodes(i-1,8) - T_nodes(i-1,9))/(Rcond_steel/2 + Rc_StCab) - (T_nodes(i-1,9) - T_nodes(i-1,10))/(Rconv_cab + Rc_StCab));
+ T_nodes(i,9) = T_nodes(i-1,9) + 2*deltat(i)/(lm_steel + lm_cab) * ((T_nodes(i-1,8) - T_nodes(i-1,9))/(Rcond_steel/2 + Rc_StCab) - (T_nodes(i-1,9) - T_nodes(i-1,10))/(Rconv_cab + Rc_StCab));
  
  %CABIN
   
@@ -180,17 +181,18 @@ Rc_StCab = (Rcond_steel + Rconv_cab)/4;
 
 %===========================================================================
 
-T_abl1 = T_nodes(:,1);
-T_abl2 = T_nodes(:,2);
+T_abl1 = T_nodes(:,2);
+T_abl2 = T_nodes(:,3);
 T_insAl = T_nodes(:,6);
 T_AlSt = T_nodes(:,8);
 T_cab = T_nodes(:,10);
 
 
+
 %Plot results
 
 figure()
-        ax1 = subplot(2,1,1);legend('Location','SE'); hold on; 
+        ax1 = subplot(2,1,1);legend('Location','NE'); hold on; 
         plot(ax1,t,T_cab,'-b','LineWidth',2,'DisplayName','Temperature inside the cabin')
         plot(ax1,t,T_abl1,'-r','LineWidth',2,'DisplayName','Temperature inside TPS')
         plot(ax1,t,T_abl1,'--r','LineWidth',2,'DisplayName','Temperature inside TPS')
@@ -198,21 +200,17 @@ figure()
         ylabel('Temperature $[K]$')
         grid on;grid minor;
 
-        ax2 = subplot(2,1,2);legend('Location','SE'); hold on; 
+        ax2 = subplot(2,1,2);legend('Location','NE'); hold on; 
         plot(ax2,t,x,'LineWidth',2,'DisplayName','Thickness variation in time')
         xlabel('Time $[s]$')
         ylabel('Variation of thicnkess of TPS $[m]$')
         grid on;grid minor;
         
 figure()
-
-        ax1 = subplot(2,1,1);legend('Location','SE'); hold on; 
-        plot(ax1,x,T_abl1,'-b','LineWidth',2,'DisplayName','Temperature inside the cabin')
-        plot(ax1,x,T_abl2,'-r','LineWidth',2,'DisplayName','Temperature inside TPS')
-        xlabel('Time $[s]$')
-        ylabel('Temperature $[K]$')
-        grid on;grid minor
-
+        
+        totalTK =[0, x(end)/2, x(end), x(end)+th_ins/2, x(end)+th_ins, x(end)+th_ins+th_al/2, x(end)+th_ins+th_al, x(end)+th_ins+th_al+th_steel/2, x(end)+th_ins+th_al+th_steel, x(end)+th_ins+th_al+th_steel+0.5  ]; 
+        A=interp1(totalTK,T_nodes(end,:));
+        plot(A);
 
 
 

@@ -1,7 +1,7 @@
 function [vargout] = flight_envelope(h,v,T_w,par,parT)
 
 %Exponentialatmospheric model: rho = rho0*exp(-beta*h) ;
-beta = 835/par.Re;    % [1/km]
+beta = 835/par.Re;      % [1/km]
 rho0 = 1.225*1e9;       % [kg/km^3]
 % This function provides the flight envelope constraints
 
@@ -18,8 +18,10 @@ rho0 = 1.225*1e9;       % [kg/km^3]
 %   of the vehicle (Rn).It should be below the computed solution if
 %   ablative TPS is not used
 
+    
     T_max = max(T_w);
-    h_tl = -2/beta.*log((parT.sigma*1e-2*parT.emiss*T_max^4*...
+    
+    h_tl = -2/beta.*log((parT.sigma*1e-6*parT.emiss.*T_max.^4*...
            sqrt(parT.Rn*1e-5))./(parT.Ks*sqrt(rho0).*v.^3));
 
     % By using information about radiative flux, values with v<= 2 km/s are neglected 
