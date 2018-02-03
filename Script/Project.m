@@ -158,9 +158,26 @@ flight_envelope(h,v,T_w,par,parT);
 
 ground_track(long,lat);
 
+
+%% Integrator analysis
+
+% Consider a default time step
+
+% For ODE113
+[t113_0, y113_0, bank113_0, timeBank113_0] = integrator_MOD113_0(y0,time,par);
+plot_integrator_0(t,y,bank,TimeBank,t113_0,y113_0,bank113_0,timeBank113_0);
+    
+
+%By using a Max step of 0.3
+
+[t45_1, y45_1, bank45_1,timeBank45_1] = integrator_MOD45_1(y0,time,par);
+[t113_1, y113_1,bank113_1,timebank113_1] = integrator_MOD113_1(y0,time,par);
+
+plot_integrator_1(t45_1, y45_1, bank45_1,timeBank45_1,t113_1, y113_1,bank113_1,timebank113_1);
+
+
 %% Sensitivity analysis
 % By changing flight path angle
-clc;
 
 %1) gamma = -0.75;
 
@@ -204,19 +221,6 @@ q_conv_35 = convective_flux(v_35,h_m_35,parT);
 flight_envelope_sensitivity(h_075,v_075,T_w_075,h_35,v_35,T_w_35,par,parT);
 
 
-%% Integrator analysis
-
-
-[t45_1, y45_1, bank45,timebank45, t113_1, y113_1] = integrator_MOD_analysis(y0,time,par);
-
-%Find corresponding bank angle for ODE113
-[bank113,timebank113] = integrator_MOD_113_bank(y0,time,par);
-
-
-%By using a Max step of 0.3
-
-plot_integrator(t45,y45,bank45,timebank45,t113,y113,bank113,timebank113)
-    
 
 
 

@@ -206,11 +206,21 @@ flight_envelope_sensitivity(h_075,v_075,T_w_075,h_35,v_35,T_w_35,par,parT);
 
 %% Integrator analysis
 
+% Consider a default time step
 
-[t45_1, y45_1, bank45,timebank45, t113_1, y113_1] = integrator_MOD_analysis(y0,time,par);
+% For ODE45
 
-%Find corresponding bank angle for ODE113
-[bank113,timebank113] = integrator_MOD_113_bank(y0,time,par);
+N45_0 = length(t);
+deltaStep45_0 = zeros(N45_0,1);
+deltaStep45_0(1) = t(1);
+for j = 2:N45_0
+    
+    deltaStep45_0(j) =(t(j) - t(j-1));
+    
+end
+
+% For ODE113
+[t113_0, y113_0, deltaStep113_0, Bank113_0, ti] = integrator_MOD1130(y0,time,par)
 
 
 %By using a Max step of 0.3
