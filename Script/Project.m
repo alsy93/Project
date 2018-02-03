@@ -173,7 +173,7 @@ plot_integrator_0(t,y,bank,TimeBank,t113_0,y113_0,bank113_0,timeBank113_0);
 [t45_1, y45_1, bank45_1,timeBank45_1] = integrator_MOD45_1(y0,time,par);
 [t113_1, y113_1,bank113_1,timebank113_1] = integrator_MOD113_1(y0,time,par);
 
-plot_integrator_1(t45_1, y45_1, bank45_1,timeBank45_1,t113_1, y113_1,bank113_1,timebank113_1);
+Vargout = plot_integrator_1(t45_1, y45_1, bank45_1,timeBank45_1,t113_1, y113_1,bank113_1,timebank113_1);
 
 
 %% Sensitivity analysis

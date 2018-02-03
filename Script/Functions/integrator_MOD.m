@@ -44,7 +44,7 @@ function [t, y, collectorBank, collectortime] = integrator_MOD(y0,time,par)
 
 %Check inputs
 if nargin ~= 3
-    error('Incorrect number of inputs.  See help ecef2enu_12.')
+    error('Incorrect number of inputs.  See help integrator_MOD.')
 end
 if size(y0,1) ~= 1
       error('Check the help of this function')
