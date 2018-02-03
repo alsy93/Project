@@ -196,6 +196,8 @@ hea_075 = y_075(:,6);
 q_conv_075 = convective_flux(v_075,h_m_075,parT);
 [T_w_075, q_rad_TS_075] = wall_temperature(v_075,h_m_075,q_conv_075,t_075,parT);
 
+ground_track(long_075,lat_075);
+
 %1) gamma = -3.5;
 
 gamma035 = -3.5;
@@ -213,7 +215,7 @@ hea_35 = y_35(:,6);
 q_conv_35 = convective_flux(v_35,h_m_35,parT);
 [T_w_35, q_rad_TS_35] = wall_temperature(v_35,h_m_35,q_conv_35,t_35,parT);
 
-
+ground_track(long_35,lat_35);
 
 
 
