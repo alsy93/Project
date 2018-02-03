@@ -71,10 +71,10 @@ Rn = 2.235e2;           %Nose radius of stagnation point [cm]
 emiss = 0.85;           %Emissivity coefficient
 cd = 1.4;               %Conductive coefficient [W/(mK)]
 sigma = 5.670373e-8;    %Stefan-Boltzmann constant [W/(m^2*K^4)]
-C = 1;                  % First constant of Tauber-Sutton
-a = 1;                  % Second constant of Tauber-Sutton
-b = 1.6;                % Third constant of Tauber-Sutton
-d = 8.5;                % Fourth constant of Tauber-Sutton
+C = 1;                  %First constant of Tauber-Sutton
+a = 1;                  %Second constant of Tauber-Sutton
+b = 1.6;                %Third constant of Tauber-Sutton
+d = 8.5;                %Fourth constant of Tauber-Sutton
 Ks = 1.7415e-4;         %Costant of Sutton-Graves for Earth
  
 %======== Start modeling and simulation ================================

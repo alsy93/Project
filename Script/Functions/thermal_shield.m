@@ -11,7 +11,7 @@ rho_abl = 1450;             % Density of the ablation material [kg/m^3]
 ql_fus =29600*1e3;          % Latent heat of fusion (ablative material) [J/kg]
 k_abl = 0.37;               % Thermal conductivity [W/mK]
 Cp = 1256.04;               % Specific heat [J/kgK]
-alpha = 0.9;                % Solar absorptivity of TPS
+alpha = 0.9;                % Solar absorptivity 
 
 % VIM low density insulator
 th_ins = 0.008;                         % insulator thickness after TPS
