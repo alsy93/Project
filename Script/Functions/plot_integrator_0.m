@@ -75,7 +75,7 @@ figure('Name','States of ODE113');
             
  figure ('Name','Bank angle ODE45 - ODE113');
         
-        legend('Position','NE'); hold on;
+        legend(); hold on;
         vargout(9) = plot(timebank45,bank45,'LineWidth',2,'DisplayName','Bank angle ODE45');
         vargout(10) = plot(timebank113,bank113,'LineWidth',2,'DisplayName','Bank angle ODE113');
         xlabel('Integration time $[s]$'); ylabel('Bank angle $[grad]$');
