@@ -66,7 +66,7 @@ lm_cab = rho_air*parT.Vol*Cp_air;
  T_nodes(1,:) = T_nodes0;
  
  Qin = zeros(L,1);
- Qin(1) = parT.A_ref*(q_conv(1) +  q_rad_TS(1)); %- parT.sigma*parT.emiss*T_w(1)^4);
+ Qin(1) = parT.A_ref*(q_conv(1) +  q_rad_TS(1)); 
  
  deltat = zeros(L,1);
  deltaX = zeros(L,1);

@@ -111,9 +111,9 @@ par.m = m;
 
 % Solve mechanical part
 
-tic
+
 [t, y, bank, TimeBank] = integrator_MOD(y0,time,par);
-integrator_time = toc;
+
 
 %Convert km in m
 
